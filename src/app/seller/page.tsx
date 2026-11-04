@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Chat, postJSON, useLive, wire, type ChatHandle, type Step, type Turn } from "@/components/Chat";
+import { usePayPalConfig } from "@/components/PayPalCheckout";
 
 type Listing = {
   id: string;
@@ -57,20 +58,69 @@ const returnStatus: Record<ReturnRequest["status"], [string, string]> = {
   DECLINED: ["declined", "bg-paper"],
 };
 
+const PASS_KEY = "koolcart.sellerPasscode";
+
 export default function SellerStudio() {
-  const { data, refresh } = useLive<Dashboard>("/api/seller/dashboard", 3000);
+  const config = usePayPalConfig();
+  // undefined = not checked yet; "" = no passcode saved.
+  const [passcode, setPasscode] = useState<string>();
+
+  // Remembering the passcode for this tab is a convenience only; storage may be unavailable.
+  useEffect(() => {
+    let saved = "";
+    try {
+      saved = sessionStorage.getItem(PASS_KEY) ?? "";
+    } catch {}
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPasscode(saved);
+  }, []);
+
+  const save = (p: string) => {
+    try {
+      if (p) sessionStorage.setItem(PASS_KEY, p);
+      else sessionStorage.removeItem(PASS_KEY);
+    } catch {}
+    setPasscode(p);
+  };
+
+  if (!config || passcode === undefined) return null;
+  if (config.sellerLocked && !passcode) return <PasscodeGate onUnlock={save} />;
+  return (
+    <Studio
+      headers={passcode ? { "x-seller-passcode": passcode } : {}}
+      demoResetHours={config.demoResetHours}
+      onLocked={() => save("")}
+    />
+  );
+}
+
+function Studio({
+  headers,
+  demoResetHours,
+  onLocked,
+}: {
+  headers: Record<string, string>;
+  demoResetHours: number | null;
+  onLocked: () => void;
+}) {
+  const { data, refresh } = useLive<Dashboard & { locked?: boolean }>("/api/seller/dashboard", 3000, headers);
   const [tab, setTab] = useState<"shelf" | "orders" | "returns">("shelf");
   const [busyId, setBusyId] = useState<string>();
   const chat = useRef<ChatHandle>(null);
-  const freshOrders = useFreshIds(data?.orders.map((o) => o.id));
+  const freshOrders = useFreshIds(data?.orders?.map((o) => o.id));
+
+  // The passcode changed on the server, or was wrong: go back to the passcode screen.
+  useEffect(() => {
+    if (data?.locked) onLocked();
+  }, [data?.locked, onLocked]);
 
   async function send(history: Turn[]) {
     const res = await postJSON<{ reply: string; steps: Step[]; listingIds: string[] }>("/api/seller/chat", {
       history: wire(history),
-    });
+    }, headers);
     refresh();
     // Fetch the latest listings so the preview cards show what was just saved.
-    const latest = (await fetch("/api/seller/dashboard").then((r) => r.json())) as Dashboard;
+    const latest = (await fetch("/api/seller/dashboard", { headers }).then((r) => r.json())) as Dashboard;
     const touched = latest.listings.filter((l) => res.listingIds.includes(l.id));
     return {
       text: res.reply,
@@ -98,7 +148,7 @@ export default function SellerStudio() {
   }
 
   async function patchJSON(url: string, body: unknown) {
-    const res = await fetch(url, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const res = await fetch(url, { method: "PATCH", headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify(body) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error ?? "Request failed");
     return data;
@@ -139,6 +189,16 @@ export default function SellerStudio() {
             See the shop →
           </Link>
         </div>
+
+        {demoResetHours && (
+          <div className="card-soft -rotate-[0.4deg] rounded-2xl bg-[#fff6d8] px-4 py-3 text-sm">
+            <span className="font-hand text-xl">psst, this is a demo shop.</span>{" "}
+            <span className="text-muted">
+              Go ahead and list, edit or refund things. Everything resets to the starter shelf every{" "}
+              {demoResetHours === 1 ? "hour" : `${demoResetHours} hours`}, and all payments are PayPal sandbox.
+            </span>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
           <Note label="Money in (after refunds)" value={<CountUp value={revenue} money />} color="bg-[#fff6d8]" rotate={-1} />
@@ -248,7 +308,7 @@ export default function SellerStudio() {
                       <button
                         onClick={() =>
                           confirm(`Take “${l.title}” off the shelf?`) &&
-                          act(l.id, () => fetch(`/api/listings/${l.id}`, { method: "DELETE" }))
+                          act(l.id, () => fetch(`/api/listings/${l.id}`, { method: "DELETE", headers }))
                         }
                         className="text-muted hover:text-warn"
                       >
@@ -292,7 +352,7 @@ export default function SellerStudio() {
                       disabled={busyId === o.id}
                       onClick={() =>
                         confirm(`Refund ${usd(o.total - (o.refundedAmount ?? 0))} to the buyer via PayPal?`) &&
-                        act(o.id, () => postJSON(`/api/orders/${o.id}/refund`, {}))
+                        act(o.id, () => postJSON(`/api/orders/${o.id}/refund`, {}, headers))
                       }
                       className="btn-line rounded-full px-3 py-1 text-xs hover:bg-[#f7c6b0] disabled:opacity-40"
                     >
@@ -461,6 +521,50 @@ function Empty({ title, text }: { title: string; text: string }) {
     <div className="col-span-full rounded-[20px] border-[1.5px] border-dashed border-ink/30 p-10 text-center">
       <div className="font-display text-3xl italic">{title}</div>
       <p className="mx-auto mt-1 max-w-sm text-sm text-muted">{text}</p>
+    </div>
+  );
+}
+
+function PasscodeGate({ onUnlock }: { onUnlock: (passcode: string) => void }) {
+  const [value, setValue] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    const res = await fetch("/api/seller/dashboard", { headers: { "x-seller-passcode": value } }).catch(() => null);
+    setBusy(false);
+    if (res?.ok) onUnlock(value);
+    else setError("That's not it. Check the passcode and try again.");
+  }
+
+  return (
+    <div className="mx-auto max-w-md pt-10">
+      <form onSubmit={submit} className="card rounded-[24px] p-8">
+        <div className="font-hand text-2xl text-brand">staff only, mostly</div>
+        <h1 className="font-display text-5xl leading-none">The back room</h1>
+        <p className="mt-3 text-sm text-muted">
+          Enter the seller passcode to list products, see orders and handle refunds. Judges: it&apos;s in the project
+          description.
+        </p>
+        <input
+          type="password"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Seller passcode"
+          autoFocus
+          className="mt-6 w-full rounded-xl border-[1.5px] border-ink bg-background/50 px-4 py-3 text-sm outline-none focus:bg-paper"
+        />
+        {error && <p className="mt-2 text-sm text-warn">{error}</p>}
+        <button disabled={busy || !value} className="btn-ink mt-4 w-full rounded-full py-3 text-sm font-semibold disabled:opacity-40">
+          {busy ? "Checking…" : "Open the back room"}
+        </button>
+        <Link href="/" className="mt-4 block text-center text-sm text-muted underline decoration-dotted underline-offset-4">
+          ← back to the shop
+        </Link>
+      </form>
     </div>
   );
 }

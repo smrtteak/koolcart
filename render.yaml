@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: chatshop
+    name: koolcart
     runtime: node
     plan: free
     buildCommand: npm ci && npm run build
@@ -12,4 +12,10 @@ services:
       - key: PAYPAL_CLIENT_ID
         sync: false
       - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      # Public demo: roll the shop back to the starter catalog every hour.
+      - key: DEMO_RESET_HOURS
+        value: "1"
+      # Optional: require a passcode for the seller studio (share it with judges). Leave empty to keep it open.
+      - key: SELLER_PASSCODE
         sync: false

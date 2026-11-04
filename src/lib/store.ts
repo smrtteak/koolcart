@@ -56,7 +56,14 @@ export type ReturnRequest = {
   resolvedAt?: string;
 };
 
-type DB = { shopName: string; listings: Listing[]; orders: Order[]; returns: ReturnRequest[] };
+type DB = {
+  shopName: string;
+  listings: Listing[];
+  orders: Order[];
+  returns: ReturnRequest[];
+  /** When the shop was last (re)seeded from the starter catalog. */
+  resetAt?: string;
+};
 
 const FILE = process.env.DATA_FILE ?? path.join(/*turbopackIgnore: true*/ process.cwd(), "data", "store.json");
 
@@ -72,7 +79,23 @@ function starterShop(): DB {
     ...l,
     createdAt: new Date(now - minutesAgo * 60_000).toISOString(),
   }));
-  return { ...structuredClone(EMPTY), listings };
+  return { ...structuredClone(EMPTY), listings, resetAt: new Date(now).toISOString() };
+}
+
+/**
+ * Public demo deployments set DEMO_RESET_HOURS so anything visitors change (deleted listings, test orders)
+ * rolls back to the starter catalog on a schedule. Unset, the shop is never reset.
+ */
+export function demoResetHours(): number | null {
+  const h = Number(process.env.DEMO_RESET_HOURS);
+  return Number.isFinite(h) && h > 0 ? h : null;
+}
+
+function resetDue(db: DB) {
+  const hours = demoResetHours();
+  if (!hours) return false;
+  const last = db.resetAt ? new Date(db.resetAt).getTime() : 0;
+  return Date.now() - last >= hours * 3600_000;
 }
 
 async function load(): Promise<DB> {
@@ -86,7 +109,13 @@ async function load(): Promise<DB> {
     return db;
   }
   // Older data files predate returns; fill in anything missing.
-  return { ...structuredClone(EMPTY), ...JSON.parse(raw) } as DB;
+  const db = { ...structuredClone(EMPTY), ...JSON.parse(raw) } as DB;
+  if (resetDue(db)) {
+    const fresh = starterShop();
+    await save(fresh);
+    return fresh;
+  }
+  return db;
 }
 
 async function save(db: DB) {

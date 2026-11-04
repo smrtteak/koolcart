@@ -95,7 +95,16 @@ If `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` are not set, the app runs in **Pa
 
 ## Deploy (Render)
 
-`render.yaml` is included: *New → Blueprint* on Render, point it at this repo, and fill in the PayPal vars plus `GEMINI_API_KEY`. A hosted server can't reach your local Ollama, so use Gemini, or `AI_BASE_URL=https://ollama.com/v1` with an Ollama API key. Data is a JSON file (`data/store.json`). On Render's free tier it resets to the starter catalog on each deploy, which suits a demo.
+`render.yaml` is included: *New → Blueprint* on Render, point it at this repo, and fill in the PayPal vars plus `GEMINI_API_KEY`. A hosted server can't reach your local Ollama, so use Gemini, or `AI_BASE_URL=https://ollama.com/v1` with an Ollama API key. Data is a JSON file (`data/store.json`). On Render's free tier it resets to the starter catalog on each deploy.
+
+For a public demo, two optional settings keep the shop safe without hiding anything from judges:
+
+| Setting | What it does |
+|---|---|
+| `DEMO_RESET_HOURS=1` | Rolls the shop back to the 18 starter products (and clears test orders) every hour, so anything a visitor deletes or changes fixes itself. The seller studio shows a note saying so. Set by default in `render.yaml`. |
+| `SELLER_PASSCODE=…` | Puts the seller studio behind a passcode. Seller-only APIs (chat, dashboard, stock, delete, refunds, returns) reject requests without it. Share the passcode in your project description so judges can get in. Leave it unset to keep the studio open. |
+
+Neither is set locally by default, so your own shop is never reset or locked.
 
 ## Tech
 
