@@ -44,3 +44,6 @@ data/
 
 # local tooling
 .claude/
+
+# rendered demo videos (upload to YouTube instead)
+demo-video/
