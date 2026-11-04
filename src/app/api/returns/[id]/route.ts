@@ -1,9 +1,11 @@
 import { refundOrder } from "@/lib/commerce";
-import { errorResponse } from "@/lib/http";
+import { errorResponse, sellerGuard } from "@/lib/http";
 import { mutate, read } from "@/lib/store";
 
 // Seller: approve or decline a request. Approving a return refunds the order through PayPal.
 export async function PATCH(req: Request, ctx: RouteContext<"/api/returns/[id]">) {
+  const denied = sellerGuard(req);
+  if (denied) return denied;
   try {
     const { id } = await ctx.params;
     const { action } = (await req.json()) as { action: "approve" | "decline" };

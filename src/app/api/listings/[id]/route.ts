@@ -1,8 +1,10 @@
-import { errorResponse } from "@/lib/http";
+import { errorResponse, sellerGuard } from "@/lib/http";
 import { mutate } from "@/lib/store";
 
 // Quick edits from the seller dashboard (stock +/-), and delete.
 export async function PATCH(req: Request, ctx: RouteContext<"/api/listings/[id]">) {
+  const denied = sellerGuard(req);
+  if (denied) return denied;
   try {
     const { id } = await ctx.params;
     const { stockDelta } = (await req.json()) as { stockDelta: number };
@@ -18,7 +20,9 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/listings/[id]"
   }
 }
 
-export async function DELETE(_req: Request, ctx: RouteContext<"/api/listings/[id]">) {
+export async function DELETE(req: Request, ctx: RouteContext<"/api/listings/[id]">) {
+  const denied = sellerGuard(req);
+  if (denied) return denied;
   const { id } = await ctx.params;
   await mutate((db) => {
     db.listings = db.listings.filter((l) => l.id !== id);

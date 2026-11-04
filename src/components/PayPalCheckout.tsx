@@ -3,7 +3,12 @@
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { useEffect, useState } from "react";
 
-type Config = { paypalClientId: string | null; paypalMode: "sandbox" | "demo" };
+type Config = {
+  paypalClientId: string | null;
+  paypalMode: "sandbox" | "demo";
+  sellerLocked: boolean;
+  demoResetHours: number | null;
+};
 
 let configPromise: Promise<Config> | null = null;
 export function usePayPalConfig() {

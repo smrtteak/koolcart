@@ -292,10 +292,10 @@ export function Chat({
 /** Strip UI-only fields before posting history to the server. */
 export const wire = (turns: Turn[]) => turns.map(({ role, text, image }) => ({ role, text, image }));
 
-export async function postJSON<T>(url: string, body: unknown): Promise<T> {
+export async function postJSON<T>(url: string, body: unknown, headers: Record<string, string> = {}): Promise<T> {
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...headers },
     body: JSON.stringify(body),
   });
   const data = await res.json();
@@ -304,13 +304,14 @@ export async function postJSON<T>(url: string, body: unknown): Promise<T> {
 }
 
 /** Poll an endpoint so the page stays live while another tab sells or lists things. */
-export function useLive<T>(url: string, intervalMs = 4000) {
+export function useLive<T>(url: string, intervalMs = 4000, headers: Record<string, string> = {}) {
   const [data, setData] = useState<T>();
   const [tick, setTick] = useState(0);
+  const headerKey = JSON.stringify(headers);
   useEffect(() => {
     let alive = true;
     const load = () =>
-      fetch(url)
+      fetch(url, { headers: JSON.parse(headerKey) })
         .then((r) => r.json())
         .then((d) => alive && setData(d))
         .catch(() => {});
@@ -322,6 +323,6 @@ export function useLive<T>(url: string, intervalMs = 4000) {
       alive = false;
       clearInterval(timer);
     };
-  }, [url, intervalMs, tick]);
+  }, [url, intervalMs, tick, headerKey]);
   return { data, refresh: () => setTick((t) => t + 1) };
 }
