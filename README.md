@@ -78,7 +78,9 @@ Requirements: Node 20+, a [PayPal Developer](https://developer.paypal.com/) acco
    cp .env.example .env.local   # fill in PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, and optionally an AI key
    npm run dev
    ```
-3. Open http://localhost:3000.
+3. Open http://localhost:3000. The shop opens with 18 starter products (hand-drawn illustrations in `public/products/`), so there's something to browse, haggle over and buy right away.
+
+To reset the shop to the starter catalog, stop the server and delete `data/store.json`. It's recreated from `src/lib/starter-catalog.json` on the next request.
 
 ### Demo mode (no PayPal keys yet)
 
@@ -93,7 +95,7 @@ If `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` are not set, the app runs in **Pa
 
 ## Deploy (Render)
 
-`render.yaml` is included: *New → Blueprint* on Render, point it at this repo, and fill in the PayPal vars plus `GEMINI_API_KEY`. A hosted server can't reach your local Ollama, so use Gemini, or `AI_BASE_URL=https://ollama.com/v1` with an Ollama API key. Data is a JSON file (`data/store.json`). On Render's free tier it resets on each deploy, which suits a demo.
+`render.yaml` is included: *New → Blueprint* on Render, point it at this repo, and fill in the PayPal vars plus `GEMINI_API_KEY`. A hosted server can't reach your local Ollama, so use Gemini, or `AI_BASE_URL=https://ollama.com/v1` with an Ollama API key. Data is a JSON file (`data/store.json`). On Render's free tier it resets to the starter catalog on each deploy, which suits a demo.
 
 ## Tech
 
@@ -104,7 +106,8 @@ Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · Gemini / Ollama (Open
 ```
 src/lib/paypal.ts          PayPal REST client (OAuth, Catalog, Orders, Refunds)
 src/lib/commerce.ts        checkout / capture / refund rules (price floors, stock)
-src/lib/store.ts           JSON-file datastore
+src/lib/store.ts           JSON-file datastore (seeds the starter catalog on first run)
+src/lib/starter-catalog.json  18 starter products
 src/lib/agents/seller.ts   seller agent + tools
 src/lib/agents/buyer.ts    shopper agent + haggling policy
 src/app/api/**             route handlers

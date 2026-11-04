@@ -1,0 +1,309 @@
+[
+  {
+    "id": "mug",
+    "title": "Sage Speckle Mug",
+    "tagline": "Wheel-thrown, 12 oz, with a thumb-friendly handle.",
+    "description": "Thrown on the wheel in small batches and dipped in a soft sage glaze that breaks into little cream speckles. Holds about 12 oz of coffee or tea. The handle fits three fingers comfortably. Dishwasher safe, though hand washing keeps the glaze glossy longer. No two are exactly alike.",
+    "price": 24,
+    "floorPrice": 20,
+    "stock": 6,
+    "category": "Kitchen",
+    "tags": [
+      "ceramics",
+      "mug",
+      "coffee",
+      "gift"
+    ],
+    "image": "/products/mug.svg",
+    "minutesAgo": 30
+  },
+  {
+    "id": "candles",
+    "title": "Beeswax Taper Candles (Pair)",
+    "tagline": "Pure beeswax, hand-dipped, about 4 hours each.",
+    "description": "Two honey-coloured tapers dipped by hand from local beeswax. They burn clean and slow with a faint sweet smell, and they don't drip much if you keep them away from drafts. Each is about 10 inches tall and fits a standard candlestick holder.",
+    "price": 14,
+    "floorPrice": 11,
+    "stock": 10,
+    "category": "Home",
+    "tags": [
+      "candles",
+      "beeswax",
+      "dinner table"
+    ],
+    "image": "/products/candles.svg",
+    "minutesAgo": 90
+  },
+  {
+    "id": "teatowel",
+    "title": "Striped Linen Tea Towel",
+    "tagline": "Washed linen that gets softer every time.",
+    "description": "Cut and hemmed from stonewashed linen with a classic blue stripe at each end. It dries glasses without leaving lint and looks nice hanging on the oven door. A cotton loop in one corner lets you hang it on a hook. About 20 × 28 inches.",
+    "price": 16,
+    "floorPrice": 13,
+    "stock": 8,
+    "category": "Kitchen",
+    "tags": [
+      "linen",
+      "kitchen",
+      "towel"
+    ],
+    "image": "/products/teatowel.svg",
+    "minutesAgo": 200
+  },
+  {
+    "id": "notebooks",
+    "title": "Kraft Pocket Notebooks (Set of 3)",
+    "tagline": "Dot grid, 48 pages each, fits a back pocket.",
+    "description": "Three little notebooks with kraft card covers and stitched spines. Inside is 48 pages of dot-grid paper that handles fountain pens without much bleed. A label on the front gives you somewhere to write what each one is for: lists, sketches, phone numbers. 3.5 × 5.5 inches.",
+    "price": 12,
+    "floorPrice": 10,
+    "stock": 15,
+    "category": "Stationery",
+    "tags": [
+      "notebook",
+      "paper",
+      "journal"
+    ],
+    "image": "/products/notebooks.svg",
+    "minutesAgo": 400
+  },
+  {
+    "id": "bookmark",
+    "title": "Brass Leaf Bookmark",
+    "tagline": "A solid brass leaf that slips over the page.",
+    "description": "Cut from a sheet of solid brass and hand-polished. The leaf hooks over the top of the page so it never falls out. Over time it darkens to a warm antique colour; a quick rub with a cloth brings back the shine. Comes in a small paper sleeve, ready to give.",
+    "price": 9,
+    "floorPrice": 7,
+    "stock": 12,
+    "category": "Stationery",
+    "tags": [
+      "brass",
+      "books",
+      "reader gift"
+    ],
+    "image": "/products/bookmark.svg",
+    "minutesAgo": 600
+  },
+  {
+    "id": "pin",
+    "title": "“Stay Kool” Enamel Pin",
+    "tagline": "Hard enamel, gold-tone edges, rubber clutch.",
+    "description": "Our cheerful little mascot as a 1.25-inch hard enamel pin. Smooth to the touch, with gold-tone edges and a rubber clutch on the back so it stays put on a jacket, bag strap or lanyard. Backed on a small illustrated card.",
+    "price": 8,
+    "floorPrice": 6,
+    "stock": 25,
+    "category": "Accessories",
+    "tags": [
+      "pin",
+      "enamel",
+      "under $10"
+    ],
+    "image": "/products/pin.svg",
+    "minutesAgo": 800
+  },
+  {
+    "id": "beanie",
+    "title": "Mustard Hand-Knit Beanie",
+    "tagline": "Chunky merino blend with a big pom-pom.",
+    "description": "Knit by hand from a soft merino-and-alpaca blend in a warm mustard yellow. The ribbed brim folds up and the oatmeal pom-pom is firmly attached. One size fits most adults. Warm but not itchy. Hand wash cold and dry flat.",
+    "price": 32,
+    "floorPrice": 26,
+    "stock": 2,
+    "category": "Clothing",
+    "tags": [
+      "knitwear",
+      "winter",
+      "hat"
+    ],
+    "image": "/products/beanie.svg",
+    "minutesAgo": 1000
+  },
+  {
+    "id": "pot",
+    "title": "Little Terracotta Pot & Saucer",
+    "tagline": "4-inch pot with a matching saucer and drainage hole.",
+    "description": "Classic unglazed terracotta that breathes, so roots don't sit in water. The 4-inch pot comes with its own saucer and a drainage hole in the bottom. It suits herbs, succulents or a small cutting on the windowsill. The plant isn't included, sorry!",
+    "price": 18,
+    "floorPrice": 15,
+    "stock": 9,
+    "category": "Home",
+    "tags": [
+      "plants",
+      "terracotta",
+      "windowsill"
+    ],
+    "image": "/products/pot.svg",
+    "minutesAgo": 1300
+  },
+  {
+    "id": "spoon",
+    "title": "Olive Wood Cooking Spoon",
+    "tagline": "Carved from a single piece of olive wood.",
+    "description": "Each spoon is carved from one piece of olive wood, so the grain is different on every one. Long enough for deep pots and gentle on non-stick pans. Oil it with any food-safe oil now and then and it will last for years. About 12 inches long.",
+    "price": 15,
+    "floorPrice": 12,
+    "stock": 7,
+    "category": "Kitchen",
+    "tags": [
+      "wooden",
+      "cooking",
+      "utensil"
+    ],
+    "image": "/products/spoon.svg",
+    "minutesAgo": 1600
+  },
+  {
+    "id": "postcards",
+    "title": "Watercolour Postcard Set (6)",
+    "tagline": "Six painted landscapes, blank on the back.",
+    "description": "Six postcards printed from small watercolour paintings: hills, a lake, a field of wildflowers and a few other quiet places. They're printed on thick, slightly textured card, with plain backs for writing on. Nice to send, or to frame as a little set.",
+    "price": 11,
+    "floorPrice": 9,
+    "stock": 14,
+    "category": "Stationery",
+    "tags": [
+      "postcards",
+      "art",
+      "watercolour"
+    ],
+    "image": "/products/postcards.svg",
+    "minutesAgo": 2000
+  },
+  {
+    "id": "tote",
+    "title": "Sunny Canvas Tote",
+    "tagline": "Heavy cotton canvas with a screen-printed sun.",
+    "description": "A sturdy tote made from 12 oz cotton canvas with long handles that sit comfortably on your shoulder. The sun on the front is screen-printed by hand, so the ink is a little uneven in places. It's big enough for groceries, a laptop or a beach towel.",
+    "price": 20,
+    "floorPrice": 16,
+    "stock": 11,
+    "category": "Accessories",
+    "tags": [
+      "bag",
+      "canvas",
+      "everyday"
+    ],
+    "image": "/products/tote.svg",
+    "minutesAgo": 2500
+  },
+  {
+    "id": "coasters",
+    "title": "Woven Jute Coasters (Set of 4)",
+    "tagline": "Hand-woven jute, about 4 inches across.",
+    "description": "Four round coasters coiled and stitched by hand from natural jute. They protect tables from warm mugs and cold glasses and add a bit of texture to a coffee table. Shake them out or give them a quick vacuum to clean.",
+    "price": 13,
+    "floorPrice": 10,
+    "stock": 10,
+    "category": "Home",
+    "tags": [
+      "jute",
+      "coasters",
+      "table"
+    ],
+    "image": "/products/coasters.svg",
+    "minutesAgo": 3000
+  },
+  {
+    "id": "honey",
+    "title": "Wildflower Honey, 250g",
+    "tagline": "Raw, unfiltered honey from a small local apiary.",
+    "description": "Raw honey from bees that forage on clover, blackberry and whatever's flowering that season, so each batch tastes slightly different. It's unheated and unfiltered and will crystallise naturally over time; stand the jar in warm water to loosen it. 250g glass jar.",
+    "price": 10,
+    "floorPrice": 8,
+    "stock": 18,
+    "category": "Pantry",
+    "tags": [
+      "honey",
+      "local",
+      "food"
+    ],
+    "image": "/products/honey.svg",
+    "minutesAgo": 3600
+  },
+  {
+    "id": "coffee",
+    "title": "House Roast Coffee Beans, 250g",
+    "tagline": "Medium roast with chocolate and toasted-nut notes.",
+    "description": "Our everyday coffee: a medium roast of Brazilian and Colombian beans that tastes of cocoa, toasted hazelnut and a little brown sugar. It works well in a French press, pour-over or espresso machine. Whole beans, roasted in small batches and bagged within a week.",
+    "price": 17,
+    "floorPrice": 14,
+    "stock": 13,
+    "category": "Pantry",
+    "tags": [
+      "coffee",
+      "beans",
+      "morning"
+    ],
+    "image": "/products/coffee.svg",
+    "minutesAgo": 4200
+  },
+  {
+    "id": "bandana",
+    "title": "Indigo Cotton Bandana",
+    "tagline": "Soft cotton, block-print pattern, 22 inches square.",
+    "description": "Lightweight cotton dyed deep indigo, with a simple block-printed pattern in cream. Wear it around your neck or as a headband, tie it to a bag, or use it to wrap a small gift. The colour softens a little with each wash.",
+    "price": 12,
+    "floorPrice": 9,
+    "stock": 16,
+    "category": "Accessories",
+    "tags": [
+      "cotton",
+      "indigo",
+      "bandana"
+    ],
+    "image": "/products/bandana.svg",
+    "minutesAgo": 5000
+  },
+  {
+    "id": "yoyo",
+    "title": "Wooden Yo-Yo",
+    "tagline": "Turned beechwood, painted by hand in three colours.",
+    "description": "A classic wooden yo-yo turned from beech and painted in red, yellow and green rings. It's well balanced, so it sleeps nicely once you get the hang of it. Comes with a spare cotton string. A good stocking-filler for kids, or for grown-ups at their desk.",
+    "price": 7,
+    "floorPrice": 5,
+    "stock": 20,
+    "category": "Toys",
+    "tags": [
+      "toy",
+      "wooden",
+      "under $10"
+    ],
+    "image": "/products/yoyo.svg",
+    "minutesAgo": 5600
+  },
+  {
+    "id": "macrame",
+    "title": "Small Macramé Wall Hanging",
+    "tagline": "Cotton cord knotted onto a wooden dowel.",
+    "description": "Knotted by hand from soft natural cotton cord and hung on a smooth wooden dowel. It's about 12 inches wide and 18 inches long including the fringe, which is just right above a bed, desk or plant shelf. It arrives with a hanging string attached.",
+    "price": 28,
+    "floorPrice": 22,
+    "stock": 3,
+    "category": "Home",
+    "tags": [
+      "macramé",
+      "wall decor",
+      "boho"
+    ],
+    "image": "/products/macrame.svg",
+    "minutesAgo": 6500
+  },
+  {
+    "id": "soap",
+    "title": "Oat & Honey Soap Bar",
+    "tagline": "Cold-process soap with colloidal oats, 110g.",
+    "description": "A gentle cold-process bar made with olive and coconut oils, colloidal oats and a spoonful of our wildflower honey. It lathers well, smells faintly of warm oats and is kind to dry skin. Let it dry between uses and it will last for weeks.",
+    "price": 8,
+    "floorPrice": 6,
+    "stock": 22,
+    "category": "Bath",
+    "tags": [
+      "soap",
+      "skincare",
+      "under $10"
+    ],
+    "image": "/products/soap.svg",
+    "minutesAgo": 7200
+  }
+]
