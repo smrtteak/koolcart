@@ -94,7 +94,11 @@ export default function Storefront() {
       extra: hasExtra ? (
         <div className="space-y-3">
           {offers.map((s, i) => {
-            const p = byId.get(String(s.input.id));
+            let resolvedId = String(s.input.id);
+            try {
+              resolvedId = JSON.parse(s.output).id ?? resolvedId;
+            } catch {}
+            const p = byId.get(resolvedId);
             return p ? <HaggleMeter key={i} p={p} step={s} /> : null;
           })}
           {!res.checkouts.length && mentioned.length > 0 && (
