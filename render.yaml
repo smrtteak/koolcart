@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: chatshop
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    envVars:
+      # Set ONE AI option: GEMINI_API_KEY (free), ANTHROPIC_API_KEY, or AI_BASE_URL + AI_API_KEY
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false

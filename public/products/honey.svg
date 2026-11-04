@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+<defs>
+  <filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .25  0 0 0 0 .2  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+</defs>
+<rect width="600" height="450" fill="#fbecc4"/>
+<rect width="600" height="450" fill="#fbecc4" filter="url(#paper)"/>
+<circle cx="510" cy="80" r="46" fill="#ffffff" opacity=".45"/>
+<circle cx="80" cy="380" r="30" fill="#ffffff" opacity=".35"/>
+<ellipse cx="300" cy="378" rx="170" ry="20" fill="#1f1b16" opacity=".12"/>
+<g stroke="#1f1b16" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+
+<rect x="215" y="150" width="170" height="215" rx="30" fill="#e8a317"/>
+<rect x="225" y="115" width="150" height="45" rx="10" fill="#fbf8f2"/>
+<path d="M225 135 L375 135" stroke-width="3"/>
+<rect x="240" y="215" width="120" height="85" rx="8" fill="#fbf8f2"/>
+<text x="300" y="268" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="34" fill="#1f1b16" stroke="none">honey</text>
+<path d="M245 165 Q250 185 240 200" stroke="#fff3c4" stroke-width="6" fill="none"/>
+<g transform="translate(410 120)"><ellipse cx="0" cy="0" rx="20" ry="14" fill="#f2b83a"/><path d="M-6 -13 L-6 13 M6 -13 L6 13" stroke-width="4"/><ellipse cx="-6" cy="-22" rx="12" ry="9" fill="#fbf8f2" stroke-width="3"/><ellipse cx="10" cy="-22" rx="12" ry="9" fill="#fbf8f2" stroke-width="3"/></g>
+</g>
+</svg>

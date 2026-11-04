@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+<defs>
+  <filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .25  0 0 0 0 .2  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+</defs>
+<rect width="600" height="450" fill="#eef3e6"/>
+<rect width="600" height="450" fill="#eef3e6" filter="url(#paper)"/>
+<circle cx="510" cy="80" r="46" fill="#ffffff" opacity=".45"/>
+<circle cx="80" cy="380" r="30" fill="#ffffff" opacity=".35"/>
+<ellipse cx="300" cy="378" rx="170" ry="20" fill="#1f1b16" opacity=".12"/>
+<g stroke="#1f1b16" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+
+<rect x="170" y="170" width="260" height="160" rx="40" fill="#efd9a7"/>
+<rect x="170" y="170" width="260" height="160" rx="40" fill="none"/>
+<path d="M200 200 Q300 185 400 200" stroke-width="3" opacity=".4" fill="none"/>
+<text x="300" y="268" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="38" fill="#1f1b16" stroke="none">oat &amp; honey</text>
+<circle cx="215" cy="300" r="5" fill="#b08968" stroke="none"/><circle cx="380" cy="215" r="4" fill="#b08968" stroke="none"/><circle cx="395" cy="295" r="5" fill="#b08968" stroke="none"/>
+<circle cx="170" cy="130" r="22" fill="#ffffff" opacity=".8" stroke-width="3"/><circle cx="205" cy="105" r="13" fill="#ffffff" opacity=".8" stroke-width="3"/><circle cx="440" cy="140" r="17" fill="#ffffff" opacity=".8" stroke-width="3"/>
+</g>
+</svg>
