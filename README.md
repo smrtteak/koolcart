@@ -110,6 +110,18 @@ Neither is set locally by default, so your own shop is never reset or locked.
 
 Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · Gemini / Ollama (OpenAI-compatible API) or `@anthropic-ai/sdk` · Zod · PayPal REST APIs · `@paypal/react-paypal-js`.
 
+## Tools & sponsor integrations
+
+| Tool | Used for |
+|---|---|
+| **PayPal developer platform (sandbox)** | OAuth 2.0, Catalog Products API, Orders v2 (create, capture, get), Payments v2 refunds, JS SDK Smart Buttons. See [PayPal integration](#paypal-integration). |
+| **Gemma 4 via Ollama** (`gemma4:31b-cloud`) | Default AI model for the seller helper and the shopkeeper agents (tool calling). Used in the demo video. |
+| Google Gemini API / Anthropic Claude | Optional AI providers; the same agents and tools run on either when its key is set. |
+| Next.js, React, TypeScript, Tailwind CSS, Zod | App framework, UI and tool schemas. |
+| Playwright, ffmpeg, macOS speech | Used only to record and narrate the demo video, not part of the app. |
+
+**Sponsor tools:** none of the hackathon sponsor tools (AG Grid, APIMatic, Astropods, Bryntum, Channel3, Elastic, KERNEL, Postman, Render, Zapier) are used. A `render.yaml` is included so the app *can* be deployed to Render, but the submission does not rely on it.
+
 ## Project layout
 
 ```
