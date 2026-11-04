@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+<defs>
+  <filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .25  0 0 0 0 .2  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+</defs>
+<rect width="600" height="450" fill="#fde3cf"/>
+<rect width="600" height="450" fill="#fde3cf" filter="url(#paper)"/>
+<circle cx="510" cy="80" r="46" fill="#ffffff" opacity=".45"/>
+<circle cx="80" cy="380" r="30" fill="#ffffff" opacity=".35"/>
+<ellipse cx="300" cy="378" rx="170" ry="20" fill="#1f1b16" opacity=".12"/>
+<g stroke="#1f1b16" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+
+<circle cx="300" cy="225" r="130" fill="#f2b83a"/>
+<circle cx="300" cy="225" r="105" fill="#fff6d8" stroke-width="4"/>
+<circle cx="262" cy="200" r="12" fill="#1f1b16"/><circle cx="338" cy="200" r="12" fill="#1f1b16"/>
+<path d="M255 255 Q300 300 345 255" fill="none" stroke-width="7"/>
+<path d="M220 155 L250 170 M380 155 L350 170" stroke-width="6"/>
+<text x="300" y="395" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="44" fill="#1f1b16" stroke="none">stay kool</text>
+</g>
+</svg>

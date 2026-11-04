@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+<defs>
+  <filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .25  0 0 0 0 .2  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+</defs>
+<rect width="600" height="450" fill="#ece0d1"/>
+<rect width="600" height="450" fill="#ece0d1" filter="url(#paper)"/>
+<circle cx="510" cy="80" r="46" fill="#f2b83a" opacity=".45"/>
+<circle cx="80" cy="380" r="30" fill="#f2b83a" opacity=".35"/>
+<ellipse cx="300" cy="378" rx="170" ry="20" fill="#1f1b16" opacity=".12"/>
+<g stroke="#1f1b16" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+
+<path d="M200 130 L400 130 L415 370 L185 370 Z" fill="#6f4a33"/>
+<path d="M200 130 L215 105 L385 105 L400 130" fill="#5a3b28"/>
+<rect x="235" y="190" width="130" height="110" rx="8" fill="#f5efe4"/>
+<text x="300" y="235" text-anchor="middle" font-family="Georgia, serif" font-size="26" fill="#1f1b16" stroke="none">house</text>
+<text x="300" y="268" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="26" fill="#1f1b16" stroke="none">roast</text>
+<g fill="#4a2f1f"><ellipse cx="150" cy="350" rx="16" ry="11" transform="rotate(-30 150 350)"/><ellipse cx="460" cy="345" rx="16" ry="11" transform="rotate(25 460 345)"/><ellipse cx="438" cy="370" rx="14" ry="10" transform="rotate(-10 438 370)"/></g>
+<path d="M140 350 Q150 345 160 350 M450 345 Q460 340 470 345" stroke-width="2" fill="none"/>
+</g>
+</svg>

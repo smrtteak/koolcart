@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+<defs>
+  <filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .25  0 0 0 0 .2  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+</defs>
+<rect width="600" height="450" fill="#f3ead6"/>
+<rect width="600" height="450" fill="#f3ead6" filter="url(#paper)"/>
+<circle cx="510" cy="80" r="46" fill="#ffffff" opacity=".45"/>
+<circle cx="80" cy="380" r="30" fill="#ffffff" opacity=".35"/>
+<ellipse cx="300" cy="378" rx="170" ry="20" fill="#1f1b16" opacity=".12"/>
+<g stroke="#1f1b16" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+
+<path d="M300 60 Q395 140 360 260 Q330 340 300 360 Q270 340 240 260 Q205 140 300 60 Z" fill="#d4a017"/>
+<path d="M300 75 L300 395" />
+<path d="M300 130 L345 105 M300 180 L355 150 M300 230 L350 205 M300 280 L335 262" stroke-width="4"/>
+<path d="M300 130 L255 105 M300 180 L245 150 M300 230 L250 205 M300 280 L265 262" stroke-width="4"/>
+<circle cx="300" cy="392" r="10" fill="#d4a017"/>
+</g>
+</svg>
