@@ -2,6 +2,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
+import starterCatalog from "./starter-catalog.json";
 
 export type Listing = {
   id: string;
@@ -64,13 +65,28 @@ const EMPTY: DB = { shopName: "Koolcart", listings: [], orders: [], returns: [] 
 // Serialize writes so concurrent requests don't clobber each other.
 let queue: Promise<unknown> = Promise.resolve();
 
+/** A fresh shop (new clone or deploy) opens with the starter catalog instead of empty shelves. */
+function starterShop(): DB {
+  const now = Date.now();
+  const listings: Listing[] = starterCatalog.map(({ minutesAgo, ...l }) => ({
+    ...l,
+    createdAt: new Date(now - minutesAgo * 60_000).toISOString(),
+  }));
+  return { ...structuredClone(EMPTY), listings };
+}
+
 async function load(): Promise<DB> {
+  let raw: string;
   try {
-    // Older data files predate returns; fill in anything missing.
-    return { ...structuredClone(EMPTY), ...JSON.parse(await fs.readFile(FILE, "utf8")) } as DB;
-  } catch {
-    return structuredClone(EMPTY);
+    raw = await fs.readFile(FILE, "utf8");
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
+    const db = starterShop();
+    await save(db);
+    return db;
   }
+  // Older data files predate returns; fill in anything missing.
+  return { ...structuredClone(EMPTY), ...JSON.parse(raw) } as DB;
 }
 
 async function save(db: DB) {
