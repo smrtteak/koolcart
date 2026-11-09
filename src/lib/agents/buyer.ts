@@ -95,6 +95,9 @@ export type CheckoutEvent = {
 export async function runBuyerAgent(history: ChatTurn[]) {
   const db = await read();
   const checkouts: CheckoutEvent[] = [];
+  // Products search_catalog returned this turn, for the chat's product cards. (Step outputs are truncated
+  // for display, so they can't be parsed back once the catalog is large.)
+  const searchHits: string[] = [];
   let checkoutError: string | undefined;
 
   const tools = [
@@ -109,6 +112,7 @@ export async function runBuyerAgent(history: ChatTurn[]) {
           const hay = [l.title, l.tagline, l.description, l.category, sellerOf(l), ...l.tags].join(" ").toLowerCase();
           return words.length === 0 || words.some((w) => hay.includes(w));
         });
+        searchHits.push(...hits.map((l) => l.id));
         return JSON.stringify(
           hits.map((l) => ({
             id: l.id,
@@ -233,11 +237,7 @@ export async function runBuyerAgent(history: ChatTurn[]) {
     const input = s.input as { id?: string };
     const match = input?.id ? findListing(db.listings, input.id) : undefined;
     if (match) productIds.add(match.id);
-    if (s.tool === "search_catalog" && !s.error) {
-      try {
-        for (const hit of JSON.parse(s.output) as { id: string }[]) productIds.add(hit.id);
-      } catch {}
-    }
   }
+  for (const id of searchHits) productIds.add(id);
   return { reply, checkouts, steps, productIds: [...productIds].slice(0, 6) };
 }
