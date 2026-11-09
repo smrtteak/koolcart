@@ -21,6 +21,8 @@ export type Listing = {
   paypalProductId?: string;
   /** Who listed it, as they introduced themselves in the seller studio. */
   sellerName?: string;
+  /** How hard the shopkeeper haggles on this item (see lib/haggle.ts). Defaults to "fair". */
+  haggleStyle?: "firm" | "fair" | "flexible";
   createdAt: string;
 };
 
@@ -68,8 +70,25 @@ export type ReturnRequest = {
   resolvedAt?: string;
 };
 
+/**
+ * A price the haggling policy offered or accepted in one chat. Checkout only honours discounts recorded here,
+ * and the count per chat and item is the haggling "round". Kept in the shared store because a serverless
+ * host may handle each chat message on a different instance.
+ */
+export type Deal = {
+  conversationId: string;
+  listingId: string;
+  /** Which customer message (1-based) in the chat made the offer. Rounds count messages, not tool calls. */
+  turn?: number;
+  offer: number;
+  /** The price the shop committed to: the accepted offer, or its counter-offer. */
+  agreed: number;
+  at: string;
+};
+
 type DB = {
   shopName: string;
+  deals: Deal[];
   listings: Listing[];
   orders: Order[];
   returns: ReturnRequest[];
@@ -79,7 +98,7 @@ type DB = {
 
 const FILE = process.env.DATA_FILE ?? path.join(/*turbopackIgnore: true*/ process.cwd(), "data", "store.json");
 
-const EMPTY: DB = { shopName: "Koolcart", listings: [], orders: [], returns: [] };
+const EMPTY: DB = { shopName: "Koolcart", listings: [], orders: [], returns: [], deals: [] };
 
 /** A fresh shop (new clone or deploy) opens with the starter catalog instead of empty shelves. */
 function starterShop(): DB {

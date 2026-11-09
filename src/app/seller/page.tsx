@@ -15,7 +15,14 @@ type Listing = {
   category: string;
   image?: string;
   paypalProductId?: string;
+  haggleStyle?: "firm" | "fair" | "flexible";
 };
+
+const HAGGLE: { style: "firm" | "fair" | "flexible"; label: string; hint: string }[] = [
+  { style: "firm", label: "Firm", hint: "Holds near the tag; never goes down to your lowest price" },
+  { style: "fair", label: "Fair", hint: "Gives a little each round; a buyer's 3rd offer can reach your lowest price" },
+  { style: "flexible", label: "Flexible", hint: "Takes any offer at or above your lowest price straight away" },
+];
 
 type Order = {
   id: string;
@@ -321,6 +328,34 @@ function Studio({
                     <div className="text-right">
                       <div className="font-display text-xl">{usd(l.price)}</div>
                       <div className="font-hand text-base text-muted">won&apos;t go below {usd(l.floorPrice)}</div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="mb-1 flex items-baseline justify-between text-[11px] text-muted">
+                      <span>Haggling</span>
+                      <span className="truncate pl-2 text-right">
+                        {HAGGLE.find((h) => h.style === (l.haggleStyle ?? "fair"))?.hint}
+                      </span>
+                    </div>
+                    <div className="flex rounded-full border border-line p-0.5" role="radiogroup" aria-label="Haggling style">
+                      {HAGGLE.map((h) => {
+                        const on = (l.haggleStyle ?? "fair") === h.style;
+                        return (
+                          <button
+                            key={h.style}
+                            role="radio"
+                            aria-checked={on}
+                            title={h.hint}
+                            disabled={busyId === l.id}
+                            onClick={() => !on && act(l.id, () => patchJSON(`/api/listings/${l.id}`, { haggleStyle: h.style }))}
+                            className={`flex-1 rounded-full py-1 text-xs transition ${
+                              on ? "bg-ink text-paper" : "text-muted hover:text-ink"
+                            }`}
+                          >
+                            {h.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                   <div className="flex items-center justify-between">

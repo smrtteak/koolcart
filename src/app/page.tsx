@@ -53,6 +53,8 @@ export default function Storefront() {
   const [offerFor, setOfferFor] = useState<Product | null>(null);
   const chat = useRef<ChatHandle>(null);
   const chatBox = useRef<HTMLDivElement>(null);
+  // One id per visit's chat, so the shop can count haggling rounds and honour the prices it agreed to.
+  const conversationId = useRef<string>(null);
 
   const listings = useMemo(() => shop?.listings ?? [], [shop]);
   const now = shop?.now ?? 0;
@@ -90,7 +92,7 @@ export default function Storefront() {
   async function send(history: Turn[]) {
     const res = await postJSON<{ reply: string; checkouts: Checkout[]; steps: Step[]; productIds: string[] }>(
       "/api/shop/chat",
-      { history: wire(history) },
+      { history: wire(history), conversationId: (conversationId.current ??= crypto.randomUUID()) },
     );
     const mentioned = res.productIds.map((id) => byId.get(id)).filter((p): p is Product => !!p);
     const offers = res.steps.filter((s) => s.tool === "evaluate_offer" && !s.error);
@@ -441,7 +443,7 @@ function OfferDialog({ p, onClose, onSend }: { p: Product; onClose: () => void; 
 
 /** Where the offer and the shop's answer sit against the tag price. */
 function HaggleMeter({ p, step }: { p: Product; step: Step }) {
-  let v: { verdict?: string; price?: number; counter?: number } = {};
+  let v: { verdict?: string; price?: number; counter?: number; final?: boolean; round?: number } = {};
   try {
     v = JSON.parse(step.output);
   } catch {}
@@ -455,7 +457,13 @@ function HaggleMeter({ p, step }: { p: Product; step: Step }) {
       <div className="mb-6 flex items-center justify-between">
         <span className="text-xs text-muted">{p.title}</span>
         <span className="font-hand text-xl">
-          {accepted ? "deal! 🤝" : v.verdict === "counter" ? "counter-offer" : "not this time"}
+          {accepted
+            ? "deal! 🤝"
+            : v.final
+              ? "best & final"
+              : v.verdict === "counter"
+                ? `counter-offer${v.round && v.round > 1 ? ` · round ${v.round}` : ""}`
+                : "not this time"}
         </span>
       </div>
       <div className="relative mx-6 h-1.5 rounded-full bg-surface-strong">

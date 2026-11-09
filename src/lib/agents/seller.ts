@@ -1,6 +1,7 @@
 import { z } from "zod";
 import * as paypal from "../paypal";
 import { ownsListing, refundForSeller, sellerView } from "../commerce";
+import { HAGGLE_STYLES, HAGGLE_STYLE_INFO } from "../haggle";
 import { mutate, newId, read, type Listing } from "../store";
 import { runAgent, tool, type ChatTurn } from "./run";
 
@@ -17,6 +18,9 @@ What you do:
 - If the seller gives no price, suggest a realistic one for the item and its condition and say why in one line.
 - Answer questions about sales and orders using the tools, never from memory.
 - Issue refunds through PayPal when asked. Confirm the order and amount in your reply.
+- Each listing has a haggling style: firm (holds near the tag, never reaches the floor), fair (the default: concedes
+  a bit each round, and a buyer's 3rd offer can reach the floor) or flexible (accepts any offer at or above the floor
+  right away). Set it when the seller asks, e.g. "make the scarf flexible", or suggests it ("clear these out").
 
 Keep replies short: a few lines, plain text, no markdown headings. Prices are in USD.`;
 
@@ -34,6 +38,12 @@ export async function runSellerAgent(history: ChatTurn[], sellerName: string) {
     stock: z.number().int().min(0),
     category: z.string(),
     tags: z.array(z.string()).max(8),
+    haggleStyle: z
+      .enum(HAGGLE_STYLES)
+      .optional()
+      .describe(
+        `How hard the shop AI haggles on this item. ${HAGGLE_STYLES.map((s) => `${s}: ${HAGGLE_STYLE_INFO[s]}`).join(" ")} Default fair.`,
+      ),
   };
 
   const tools = [
