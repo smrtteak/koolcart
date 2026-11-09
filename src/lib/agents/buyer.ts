@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { startCheckout } from "../commerce";
-import { getOrder } from "../paypal";
+import { getOrder, paypalMode } from "../paypal";
 import { judgeOffer } from "../haggle";
 import { mutate, publicListing, read, sellerOf, type Deal, type Listing } from "../store";
 import { runAgent, tool, type ChatTurn } from "./run";
 
-const system = (shopName: string) => `You are the shopping assistant for "${shopName}", a shared online market that takes PayPal.
+const system = (shopName: string, demo: boolean) => `You are the shopping assistant for "${shopName}", a shared online market that takes PayPal.
 Many independent makers sell here. Each product's "seller" field (from the tools) is who listed it; mention it when it
 helps, using that exact name. Never invent a maker's name or story; if a tool didn't give it to you, leave it out.
 Shoppers can buy from several makers in one checkout.
@@ -31,6 +31,13 @@ Rules:
   a fresh, true reason taken from the product details (what it's made of, its seller, how many are left).
   Same verdict, different words.
 
+${
+  demo
+    ? `- This is a demo shop on PayPal's sandbox (fake money). When you open a checkout, mention once that customers
+  without a PayPal account can choose "Debit or Credit Card" and use the test card shown under the PayPal button.
+`
+    : ""
+}
 Keep replies to 1–4 short sentences, plain text.`;
 
 /** Normalised words of a reply, for spotting near-identical repeats. */
@@ -216,7 +223,7 @@ export async function runBuyerAgent(history: ChatTurn[], conversationId: string)
     }),
   ];
 
-  const opts = { system: system(db.shopName), tools, history, effort: "low" as const, temperature: 0.9 };
+  const opts = { system: system(db.shopName, paypalMode() === "sandbox"), tools, history, effort: "low" as const, temperature: 0.9 };
   const first = await runAgent(opts);
   let text = first.text;
   const steps = first.steps;

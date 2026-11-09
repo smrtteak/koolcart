@@ -8,6 +8,8 @@ type Config = {
   paypalMode: "sandbox" | "demo";
   sellerLocked: boolean;
   demoResetHours: number | null;
+  /** A PayPal sandbox test card for guest checkout, shown to shoppers (sandbox only). */
+  testCard: { number: string; expiry: string } | null;
 };
 
 let configPromise: Promise<Config> | null = null;
@@ -130,6 +132,7 @@ export function PayPalCheckout({
         />
       </div>
       {status === "error" && <div className="mt-1 text-xs text-warn">{message}</div>}
+      {config.testCard && <TestCardHint card={config.testCard} />}
     </PayPalScriptProvider>
   );
 }
@@ -153,5 +156,68 @@ export function PayPalModeBadge() {
       <span className="hidden sm:inline">{live ? "PayPal sandbox · live" : "PayPal demo · simulated"}</span>
       <span className="sm:hidden">{live ? "Live" : "Demo"}</span>
     </span>
+  );
+}
+
+/**
+ * Sandbox only: lets anyone try a full checkout without a PayPal account, using PayPal's guest card form
+ * with a sandbox test card (fake money).
+ */
+function TestCardHint({ card }: { card: { number: string; expiry: string } }) {
+  const [copied, setCopied] = useState<string>();
+  const copy = async (label: string, text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(label);
+      setTimeout(() => setCopied(undefined), 1500);
+    } catch {}
+  };
+  const spaced = card.number.replace(/(\d{4})(?=\d)/g, "$1 ");
+  return (
+    <div className="mt-3 rounded-xl border border-dashed border-line-strong p-3 text-xs">
+      <div className="mb-1.5 flex items-center gap-2">
+        <span className="font-hand text-base text-brand">no PayPal account?</span>
+        <span className="text-muted">It&apos;s a demo shop with fake money.</span>
+      </div>
+      <p className="mb-2 text-muted">
+        Click <b className="text-foreground">Debit or Credit Card</b> and use this test card:
+      </p>
+      <div className="flex flex-wrap gap-x-1 gap-y-0.5">
+        <CopyField label="Card" value={spaced} raw={card.number} copied={copied} onCopy={copy} />
+        <CopyField label="Expiry" value={card.expiry} raw={card.expiry} copied={copied} onCopy={copy} />
+        <CopyField label="CVV" value="123" raw="123" copied={copied} onCopy={copy} />
+      </div>
+      <p className="mt-2 text-muted">
+        Any name and address work. Switch off &ldquo;create a PayPal account&rdquo;, then choose{" "}
+        <b className="text-foreground">Pay now as guest</b>.
+      </p>
+    </div>
+  );
+}
+
+function CopyField({
+  label,
+  value,
+  raw,
+  copied,
+  onCopy,
+}: {
+  label: string;
+  value: string;
+  raw: string;
+  copied?: string;
+  onCopy: (label: string, text: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onCopy(label, raw)}
+      title={`Copy ${label.toLowerCase()}`}
+      className="flex items-baseline gap-1.5 rounded-md px-1.5 py-0.5 text-left transition hover:bg-surface-strong"
+    >
+      <span className="text-muted">{label}</span>
+      <span className="font-mono text-foreground">{value}</span>
+      <span className="text-[10px] text-brand">{copied === label ? "copied" : "copy"}</span>
+    </button>
   );
 }

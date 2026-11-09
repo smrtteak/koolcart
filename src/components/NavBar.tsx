@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CartButton } from "./Cart";
-import { PayPalModeBadge } from "./PayPalCheckout";
+import { PayPalModeBadge, usePayPalConfig } from "./PayPalCheckout";
 
 const LINKS = [
   { href: "/", label: "Shop" },
@@ -13,9 +13,10 @@ const LINKS = [
 
 /** Thin announcement strip above the nav. */
 export function TopBar() {
+  const config = usePayPalConfig();
   return (
     <div className="border-b border-line bg-[#0c0b0a] text-muted">
-      <div className="mx-auto flex max-w-7xl items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-center text-xs tracking-wide sm:text-[13px]">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-center text-xs tracking-wide sm:text-[13px]">
         <span className="flex items-center gap-1.5">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
             <rect x="4" y="11" width="16" height="10" rx="2" />
@@ -30,6 +31,12 @@ export function TopBar() {
         <span className="hidden sm:inline">Free returns for 30 days</span>
         <span className="hidden opacity-50 md:inline">✳</span>
         <span className="hidden md:inline">Offers welcome</span>
+        {config?.testCard && (
+          <>
+            <span className="opacity-50">✳</span>
+            <span className="text-brand">Demo shop: pay with the test card at checkout, no account needed</span>
+          </>
+        )}
       </div>
     </div>
   );
