@@ -3,7 +3,7 @@ services:
     name: koolcart
     runtime: node
     plan: free
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start
     envVars:
       # Shared database so every visitor sees the same shop (free Neon Postgres works). Without it, data resets on restart.

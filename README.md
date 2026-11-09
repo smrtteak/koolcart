@@ -2,6 +2,8 @@
 
 A small online shop where you can chat with the shopkeeper, make an offer, and pay with PayPal.
 
+**Live demo: https://koolcart.vercel.app** (PayPal sandbox, no real money)
+
 **Sellers describe a product in plain words (and a photo). An AI agent writes the listing, prices it, registers it in the PayPal catalog and puts it on a storefront with PayPal checkout. Shoppers get their own AI assistant that answers questions, haggles within limits the seller set, and opens a PayPal checkout right in the chat.**
 
 Built for *Build What's Next with PayPal and AI*.
