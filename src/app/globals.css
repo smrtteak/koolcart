@@ -1,21 +1,31 @@
 @import "tailwindcss";
 
-/* Koolcart: warm paper, ink outlines, a few hand-drawn touches. Light theme on purpose. */
+/*
+ * Koolcart — dark editorial. Warm near-black paper, cream serif type, hairline rules and brass details,
+ * in the spirit of apothecary and boutique shops rather than tech dashboards: no glows, gradients or glass.
+ * Token names are kept from the light theme ("ink" is the text colour, "paper" the card surface).
+ */
 :root {
-  --background: #f5efe4;
-  --paper: #fffcf6;
-  --surface: #fffcf6;
-  --surface-strong: #efe6d6;
-  --foreground: #1f1b16;
-  --muted: #6f6558;
-  --border: #d8cdb9;
-  --ink: #1f1b16;
-  --brand: #1f4fd1;
-  --brand-deep: #14307f;
-  --accent: #f2b83a;
-  --ok: #2e7d4f;
-  --warn: #c2512a;
-  color-scheme: light;
+  --background: #12110f;
+  --paper: #1a1815;
+  --surface: #1a1815;
+  --surface-strong: #25221e;
+  --foreground: #ebe4d6;
+  --ink: #ebe4d6;
+  --muted: #9a9183;
+  --border: #2e2a25;
+  --border-strong: #463f36;
+  --brand: #cfa86a;
+  --brand-deep: #e3c592;
+  --accent: #cfa86a;
+  --on-accent: #17140f;
+  --ok: #9cc7a1;
+  --warn: #e3936f;
+  --tint-amber: #2a2317;
+  --tint-rose: #2f1f1a;
+  --tint-green: #1c2820;
+  --tint-blue: #1b212b;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -26,12 +36,17 @@
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
   --color-ink: var(--ink);
   --color-brand: var(--brand);
   --color-brand-deep: var(--brand-deep);
   --color-accent: var(--accent);
   --color-ok: var(--ok);
   --color-warn: var(--warn);
+  --color-tint-amber: var(--tint-amber);
+  --color-tint-rose: var(--tint-rose);
+  --color-tint-green: var(--tint-green);
+  --color-tint-blue: var(--tint-blue);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-display);
@@ -46,85 +61,91 @@ body {
 body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11";
 }
 
-/* Paper grain over everything. */
+/* Fine film grain, just enough to take the digital edge off flat black. */
 .grain {
   position: fixed;
   inset: 0;
   z-index: 60;
   pointer-events: none;
-  opacity: 0.18;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .45  0 0 0 0 .38  0 0 0 0 .28  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.09;
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .8  0 0 0 0 .75  0 0 0 0 .65  0 0 0 .5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
-/* A sheet of paper with an inked edge and a hard offset shadow. */
+/* A card: slightly lifted paper with a hairline edge. */
 .card {
   background: var(--paper);
-  border: 1.5px solid var(--ink);
-  box-shadow: 4px 4px 0 var(--ink);
+  border: 1px solid var(--border);
 }
 .card-soft {
   background: var(--paper);
   border: 1px solid var(--border);
-  box-shadow: 0 1px 0 rgba(31, 27, 22, 0.06);
 }
 .press {
   transition:
-    transform 0.12s ease,
-    box-shadow 0.12s ease;
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease;
 }
 .press:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0 var(--ink);
+  border-color: var(--border-strong);
+  background-color: #1e1c18;
 }
 .press:active {
-  transform: translate(3px, 3px);
-  box-shadow: 1px 1px 0 var(--ink);
+  transform: scale(0.995);
 }
 
-/* Ink button. */
+/* Primary button: cream on black, like a printed label. */
 .btn-ink {
   background: var(--ink);
-  color: var(--paper);
-  border: 1.5px solid var(--ink);
+  color: var(--on-accent);
+  border: 1px solid var(--ink);
+  transition: background-color 0.15s ease;
+}
+.btn-ink:hover:not(:disabled) {
+  background: #fff8ea;
 }
 .btn-line {
-  background: var(--paper);
+  background: transparent;
   color: var(--ink);
-  border: 1.5px solid var(--ink);
+  border: 1px solid var(--border-strong);
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.btn-line:hover:not(:disabled) {
+  border-color: var(--brand);
+  color: var(--brand-deep);
 }
 
-/* Little rotated paper sticker. */
+/* Small rotated tag, like a price sticker on a jar. */
 .sticker {
-  border: 1.5px solid var(--ink);
-  box-shadow: 2px 2px 0 var(--ink);
+  border: 1px solid rgba(0, 0, 0, 0.35);
 }
 
-/* Hand-drawn wavy underline under a word. */
+/* Anything sitting on brass gets dark text. */
+.bg-accent {
+  color: var(--on-accent);
+}
+
+/* Hand-drawn brass underline under a word. */
 .scribble {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'><path d='M2 8 C 30 2, 50 11, 80 6 S 140 2, 198 7' fill='none' stroke='%23f2b83a' stroke-width='5' stroke-linecap='round'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'><path d='M2 8 C 30 2, 50 11, 80 6 S 140 2, 198 7' fill='none' stroke='%23cfa86a' stroke-width='4' stroke-linecap='round'/></svg>");
   background-repeat: no-repeat;
-  background-size: 100% 0.32em;
-  background-position: 0 92%;
+  background-size: 100% 0.3em;
+  background-position: 0 94%;
   padding-bottom: 0.05em;
 }
 
-/* Dashed "cut here" line. */
+/* Dashed "tear here" rule on receipts. */
 .perforated {
-  background-image: linear-gradient(90deg, var(--border) 50%, transparent 0);
-  background-size: 10px 1.5px;
+  background-image: linear-gradient(90deg, var(--border-strong) 50%, transparent 0);
+  background-size: 10px 1px;
   background-repeat: repeat-x;
-  height: 1.5px;
-}
-
-.tilt {
-  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transition: transform 0.25s ease-out;
-}
-.tilt-glare {
-  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.25), transparent 45%);
+  height: 1px;
 }
 
 .scrollbar-none {
@@ -135,8 +156,13 @@ body {
 }
 
 ::selection {
-  background: var(--accent);
-  color: var(--ink);
+  background: var(--brand);
+  color: var(--on-accent);
+}
+
+/* Product drawings are bright paper illustrations; dim them a touch so they sit in the dark room. */
+img[src^="/products/"] {
+  filter: brightness(0.9) saturate(0.92);
 }
 
 @keyframes fadeIn {
@@ -152,7 +178,7 @@ body {
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -169,7 +195,7 @@ body {
 }
 @keyframes flash {
   0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 80%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--brand) 60%, transparent);
   }
   100% {
     box-shadow: 0 0 0 12px transparent;
@@ -191,7 +217,10 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tilt {
-    transform: none !important;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

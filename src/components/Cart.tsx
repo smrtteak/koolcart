@@ -98,7 +98,7 @@ export function CartButton() {
       {count > 0 && (
         <span
           key={count}
-          className="absolute -right-2 -top-2 flex h-6 min-w-6 animate-[wiggle_.4s_ease-in-out] items-center justify-center rounded-full border-[1.5px] border-ink bg-accent px-1 text-xs font-bold"
+          className="absolute -right-2 -top-2 flex h-6 min-w-6 animate-[wiggle_.4s_ease-in-out] items-center justify-center rounded-full border border-line-strong bg-accent px-1 text-xs font-bold"
         >
           {count}
         </span>
@@ -122,10 +122,10 @@ function CartDrawer() {
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-ink/30 animate-[fadeIn_.15s_ease-out]" onClick={() => setOpen(false)}>
       <aside
-        className="flex h-full w-full max-w-md animate-[slideIn_.25s_cubic-bezier(.2,.8,.2,1)] flex-col border-l-[1.5px] border-ink bg-paper"
+        className="flex h-full w-full max-w-md animate-[slideIn_.25s_cubic-bezier(.2,.8,.2,1)] flex-col border-l border-line-strong bg-paper"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b-[1.5px] border-ink px-5 py-4">
+        <div className="flex items-center justify-between border-b border-line-strong px-5 py-4">
           <div>
             <div className="font-display text-3xl leading-none">Your cart</div>
             <div className="font-hand text-lg text-muted">
@@ -186,7 +186,7 @@ function CartDrawer() {
         </div>
 
         {items.length > 0 && (
-          <div className="space-y-3 border-t-[1.5px] border-ink p-5">
+          <div className="space-y-3 border-t border-line-strong p-5">
             <div className="flex items-baseline justify-between">
               <span className="text-sm text-muted">Subtotal</span>
               <span className="font-display text-4xl tabular-nums">{usd(subtotal)}</span>

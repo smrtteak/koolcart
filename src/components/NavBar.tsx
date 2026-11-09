@@ -14,16 +14,16 @@ const LINKS = [
 /** Thin announcement strip above the nav. */
 export function TopBar() {
   return (
-    <div className="bg-brand-deep text-[#fffcf6]">
-      <div className="mx-auto flex max-w-7xl items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-center text-xs sm:text-sm">
+    <div className="border-b border-line bg-[#0c0b0a] text-muted">
+      <div className="mx-auto flex max-w-7xl items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-center text-xs tracking-wide sm:text-[13px]">
         <span className="flex items-center gap-1.5">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
             <rect x="4" y="11" width="16" height="10" rx="2" />
             <path d="M8 11V7a4 4 0 0 1 8 0v4" />
           </svg>
           Checkout with
-          <span className="font-bold italic">
-            Pay<span className="text-[#7cc4ff]">Pal</span>
+          <span className="font-bold italic text-foreground">
+            Pay<span className="text-[#3a9bdc]">Pal</span>
           </span>
         </span>
         <span className="hidden opacity-50 sm:inline">✳</span>
@@ -38,7 +38,7 @@ export function TopBar() {
 export function NavBar() {
   const path = usePathname();
   return (
-    <header className="sticky top-0 z-30 border-b-[1.5px] border-ink bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-line-strong bg-background/95 backdrop-blur">
       <nav className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
         <Link href="/" className="group flex items-center gap-2">
           <span className="sticker flex h-9 w-9 -rotate-6 items-center justify-center rounded-xl bg-accent font-display text-xl italic transition group-hover:rotate-3">

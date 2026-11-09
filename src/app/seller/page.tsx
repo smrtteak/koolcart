@@ -46,15 +46,15 @@ type Dashboard = { shopName: string; listings: Listing[]; orders: Order[]; retur
 const usd = (n: number) => `$${n.toFixed(2)}`;
 
 const orderStatus: Record<string, [string, string]> = {
-  COMPLETED: ["paid", "bg-[#bfe3c8]"],
+  COMPLETED: ["paid", "bg-tint-green"],
   CREATED: ["not paid yet", "bg-paper"],
-  REFUNDED: ["refunded", "bg-[#f7c6b0]"],
-  PARTIALLY_REFUNDED: ["part refunded", "bg-[#f7c6b0]"],
+  REFUNDED: ["refunded", "bg-tint-rose"],
+  PARTIALLY_REFUNDED: ["part refunded", "bg-tint-rose"],
 };
 
 const returnStatus: Record<ReturnRequest["status"], [string, string]> = {
   REQUESTED: ["needs a decision", "bg-accent"],
-  APPROVED: ["approved", "bg-[#bfe3c8]"],
+  APPROVED: ["approved", "bg-tint-green"],
   DECLINED: ["declined", "bg-paper"],
 };
 
@@ -226,13 +226,13 @@ function Studio({
             </div>
             <h1 className="font-display text-5xl leading-none sm:text-6xl">{name}&apos;s shelf</h1>
           </div>
-          <Link href="/" className="btn-line rounded-full px-4 py-2 text-sm hover:bg-accent">
+          <Link href="/" className="btn-line rounded-full px-4 py-2 text-sm hover:border-brand hover:text-brand">
             See the shop →
           </Link>
         </div>
 
         {demoResetHours && (
-          <div className="card-soft -rotate-[0.4deg] rounded-2xl bg-[#fff6d8] px-4 py-3 text-sm">
+          <div className="card-soft -rotate-[0.4deg] rounded-2xl bg-tint-amber px-4 py-3 text-sm">
             <span className="font-hand text-xl">psst, this is a demo shop.</span>{" "}
             <span className="text-muted">
               Go ahead and list, edit or refund things. Everything resets to the starter shelf every{" "}
@@ -242,7 +242,7 @@ function Studio({
         )}
 
         <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-          <Note label="Money in (after refunds)" value={<CountUp value={revenue} money />} color="bg-[#fff6d8]" rotate={-1} />
+          <Note label="Money in (after refunds)" value={<CountUp value={revenue} money />} color="bg-tint-amber" rotate={-1} />
           <Note label="Orders paid" value={<CountUp value={paid.length} />} color="bg-paper" rotate={1} />
           <Note
             label="Won by haggling"
@@ -252,18 +252,18 @@ function Studio({
                 <span className="ml-1 font-hand text-xl text-muted">of {paid.length}</span>
               </>
             }
-            color="bg-[#dceaff]"
+            color="bg-tint-blue"
             rotate={-0.5}
           />
           <Note
             label="Returns to look at"
             value={<CountUp value={openReturns} />}
-            color={openReturns ? "bg-[#f7c6b0]" : "bg-paper"}
+            color={openReturns ? "bg-tint-rose" : "bg-paper"}
             rotate={1.5}
           />
         </div>
 
-        <div className="flex gap-1 border-b-[1.5px] border-ink">
+        <div className="flex gap-1 border-b border-line-strong">
           {(
             [
               ["shelf", `On the shelf (${listings.length})`],
@@ -274,8 +274,8 @@ function Studio({
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`relative -mb-[1.5px] rounded-t-xl border-[1.5px] px-4 py-2 text-sm transition ${
-                tab === t ? "border-ink border-b-background bg-background font-medium" : "border-transparent text-muted hover:text-ink"
+              className={`relative -mb-px rounded-t-xl border px-4 py-2 text-sm transition ${
+                tab === t ? "border-line-strong border-b-background bg-background font-medium" : "border-transparent text-muted hover:text-ink"
               }`}
             >
               {label}
@@ -372,7 +372,7 @@ function Studio({
               return (
                 <div
                   key={o.id}
-                  className={`flex flex-wrap items-center gap-x-4 gap-y-2 p-4 ${freshOrders.has(o.id) ? "animate-[flash_1s_ease-out_3] bg-[#fff6d8]" : ""}`}
+                  className={`flex flex-wrap items-center gap-x-4 gap-y-2 p-4 ${freshOrders.has(o.id) ? "animate-[flash_1s_ease-out_3] bg-tint-amber" : ""}`}
                 >
                   <div className="w-24 font-display text-2xl tabular-nums">{usd(o.total)}</div>
                   <div className="min-w-0 flex-1">
@@ -395,7 +395,7 @@ function Studio({
                         confirm(`Refund ${usd(o.total - (o.refundedAmount ?? 0))} to the buyer via PayPal?`) &&
                         act(o.id, () => postJSON(`/api/orders/${o.id}/refund`, {}, headers))
                       }
-                      className="btn-line rounded-full px-3 py-1 text-xs hover:bg-[#f7c6b0] disabled:opacity-40"
+                      className="btn-line rounded-full px-3 py-1 text-xs hover:bg-tint-rose disabled:opacity-40"
                     >
                       {busyId === o.id ? "refunding…" : "Refund"}
                     </button>
@@ -559,7 +559,7 @@ function SmallButton({ label, onClick, disabled }: { label: string; onClick: () 
 
 function Empty({ title, text }: { title: string; text: string }) {
   return (
-    <div className="col-span-full rounded-[20px] border-[1.5px] border-dashed border-ink/30 p-10 text-center">
+    <div className="col-span-full rounded-[20px] border border-dashed border-line p-10 text-center">
       <div className="font-display text-3xl italic">{title}</div>
       <p className="mx-auto mt-1 max-w-sm text-sm text-muted">{text}</p>
     </div>
@@ -598,7 +598,7 @@ function PasscodeGate({ name, onUnlock, onBack }: { name: string; onUnlock: (pas
           onChange={(e) => setValue(e.target.value)}
           placeholder="Seller passcode"
           autoFocus
-          className="mt-6 w-full rounded-xl border-[1.5px] border-ink bg-background/50 px-4 py-3 text-sm outline-none focus:bg-paper"
+          className="mt-6 w-full rounded-xl border border-line-strong bg-background/50 px-4 py-3 text-sm outline-none focus:bg-paper"
         />
         {error && <p className="mt-2 text-sm text-warn">{error}</p>}
         <button disabled={busy || !value} className="btn-ink mt-4 w-full rounded-full py-3 text-sm font-semibold disabled:opacity-40">
@@ -641,7 +641,7 @@ function NameGate({ onSave }: { onSave: (name: string) => void }) {
           placeholder="Your name or shop name"
           maxLength={40}
           autoFocus
-          className="mt-6 w-full rounded-xl border-[1.5px] border-ink bg-background/50 px-4 py-3 text-sm outline-none focus:bg-paper"
+          className="mt-6 w-full rounded-xl border border-line-strong bg-background/50 px-4 py-3 text-sm outline-none focus:bg-paper"
         />
         <button disabled={!clean} className="btn-ink mt-4 w-full rounded-full py-3 text-sm font-semibold disabled:opacity-40">
           Start selling

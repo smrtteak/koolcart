@@ -142,8 +142,8 @@ export default function Storefront() {
                 <button
                   key={c}
                   onClick={() => setCategory(c)}
-                  className={`shrink-0 rounded-full border-[1.5px] px-3.5 py-1 text-sm transition ${
-                    category === c ? "border-ink bg-ink text-paper" : "border-line text-muted hover:border-ink hover:text-ink"
+                  className={`shrink-0 rounded-full border px-3.5 py-1 text-sm transition ${
+                    category === c ? "border-line-strong bg-ink text-paper" : "border-line text-muted hover:border-line-strong hover:text-ink"
                   }`}
                 >
                   {c}
@@ -155,7 +155,7 @@ export default function Storefront() {
                 value={makerFilter}
                 onChange={(e) => setMakerFilter(e.target.value)}
                 aria-label="Filter by maker"
-                className="rounded-full border-[1.5px] border-line bg-transparent px-3 py-1 text-sm text-muted outline-none focus:border-ink"
+                className="rounded-full border border-line bg-transparent px-3 py-1 text-sm text-muted outline-none focus:border-line-strong"
               >
                 <option>All makers</option>
                 {makers.map((m) => (
@@ -166,7 +166,7 @@ export default function Storefront() {
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as typeof sort)}
-              className="rounded-full border-[1.5px] border-line bg-transparent px-3 py-1 text-sm text-muted outline-none focus:border-ink"
+              className="rounded-full border border-line bg-transparent px-3 py-1 text-sm text-muted outline-none focus:border-line-strong"
             >
               <option value="new">Newest first</option>
               <option value="low">Cheapest first</option>
@@ -262,7 +262,7 @@ function Hero({ shopName, onAsk }: { shopName?: string; onAsk: (t: string) => vo
         feels a bit high, go ahead and make an offer. We don&apos;t mind.
       </p>
       <form
-        className="mt-7 flex max-w-xl items-center gap-2 rounded-full border-[1.5px] border-ink bg-background/60 p-1.5 pl-5 transition focus-within:bg-paper focus-within:shadow-[3px_3px_0_var(--ink)]"
+        className="mt-7 flex max-w-xl items-center gap-2 rounded-full border border-line-strong bg-background/60 p-1.5 pl-5 transition focus-within:bg-paper focus-within:border-brand"
         onSubmit={(e) => {
           e.preventDefault();
           if (q.trim()) onAsk(q.trim());
@@ -291,7 +291,7 @@ function Ticker({ sales, now }: { sales: Sale[]; now: number }) {
     : ["Free returns for 30 days", "Pay safely with PayPal", "Make an offer on anything", "New things added every week"];
   const loop = [...items, ...items];
   return (
-    <div className="overflow-hidden border-y-[1.5px] border-dashed border-ink/30 py-2.5 [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)]">
+    <div className="overflow-hidden border-y border-dashed border-line py-2.5 [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)]">
       <div className="flex w-max animate-[marquee_45s_linear_infinite] gap-10 pl-10 font-hand text-xl text-muted">
         {loop.map((t, i) => (
           <span key={i} className="flex items-center gap-3 whitespace-nowrap">
@@ -346,7 +346,7 @@ function ProductCard({
         {(isNew || soldOut || p.stock <= 2) && (
           <span
             className={`sticker absolute left-1 top-1 rounded-full px-2.5 py-0.5 font-hand text-lg leading-tight ${
-              soldOut ? "bg-paper text-muted" : isNew ? "bg-accent" : "bg-[#f7c6b0]"
+              soldOut ? "bg-paper text-muted" : isNew ? "bg-accent" : "bg-tint-rose"
             }`}
             style={{ transform: `rotate(${tiltOf(p.id) - 4}deg)` }}
           >
@@ -373,7 +373,7 @@ function ProductCard({
             <button
               onClick={onOffer}
               disabled={soldOut}
-              className="btn-line rounded-full px-3.5 py-2 text-sm transition hover:bg-accent disabled:opacity-30"
+              className="btn-line rounded-full px-3.5 py-2 text-sm transition hover:border-brand hover:text-brand disabled:opacity-30"
             >
               Make an offer
             </button>
@@ -410,7 +410,7 @@ function OfferDialog({ p, onClose, onSend }: { p: Product; onClose: () => void; 
           </div>
         </div>
         <div className="relative">
-          <div className="h-2.5 rounded-full border border-ink bg-background">
+          <div className="h-2.5 rounded-full border border-line-strong bg-background">
             <div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${fill}%` }} />
           </div>
           <input
@@ -451,7 +451,7 @@ function HaggleMeter({ p, step }: { p: Product; step: Step }) {
   const pos = (n: number) => `${Math.min(100, Math.max(0, ((n - lo) / (p.price - lo)) * 100))}%`;
   const accepted = v.verdict === "accept";
   return (
-    <div className="rounded-2xl border-[1.5px] border-dashed border-ink/40 bg-background/60 p-4">
+    <div className="rounded-2xl border border-dashed border-line bg-background/60 p-4">
       <div className="mb-6 flex items-center justify-between">
         <span className="text-xs text-muted">{p.title}</span>
         <span className="font-hand text-xl">
@@ -475,7 +475,7 @@ function HaggleMeter({ p, step }: { p: Product; step: Step }) {
 function Marker({ at, label, tone, top }: { at: string; label: string; tone: string; top?: boolean }) {
   return (
     <div className="absolute -translate-x-1/2" style={{ left: at, top: -6 }}>
-      <div className={`h-4 w-4 rounded-full border-[1.5px] border-ink ${tone}`} />
+      <div className={`h-4 w-4 rounded-full border border-line-strong ${tone}`} />
       <div className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] text-ink ${top ? "-top-5" : "top-5"}`}>
         {label}
       </div>
@@ -533,7 +533,7 @@ function Receipt({ c, onPaid }: { c: Checkout; onPaid: () => void }) {
           <span className="font-display text-3xl tabular-nums">{usd(c.total)}</span>
         </div>
       </div>
-      <div className="border-t-[1.5px] border-dashed border-ink/40 p-3 font-sans">
+      <div className="border-t border-dashed border-line p-3 font-sans">
         {paid ? (
           <div className="space-y-1 text-center">
             <div className="font-hand text-2xl text-ok">paid, thank you! ✓</div>
@@ -576,7 +576,7 @@ function ProductModal({
   return (
     <Modal onClose={onClose}>
       <div className="grid md:grid-cols-2">
-        <div className="relative aspect-square border-b-[1.5px] border-ink bg-background md:aspect-auto md:border-b-0 md:border-r-[1.5px]">
+        <div className="relative aspect-square border-b border-line-strong bg-background md:aspect-auto md:border-b-0 md:border-r">
           {p.image ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={p.image} alt={p.title} className="h-full w-full object-cover" />
@@ -619,7 +619,7 @@ function ProductModal({
               <button
                 onClick={onOffer}
                 disabled={p.stock === 0}
-                className="btn-line flex-1 rounded-full py-2.5 text-sm hover:bg-accent disabled:opacity-30"
+                className="btn-line flex-1 rounded-full py-2.5 text-sm hover:border-brand hover:text-brand disabled:opacity-30"
               >
                 Make an offer
               </button>
@@ -649,7 +649,7 @@ function ProductModal({
 function Thumb({ src, title, size }: { src?: string; title: string; size: number }) {
   return (
     <span
-      className="flex shrink-0 items-center justify-center overflow-hidden rounded-xl border-[1.5px] border-ink bg-background font-display text-2xl italic text-ink/30"
+      className="flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line-strong bg-background font-display text-2xl italic text-ink/30"
       style={{ width: size, height: size }}
     >
       {src ? (

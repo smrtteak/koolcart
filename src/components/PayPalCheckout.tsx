@@ -77,7 +77,7 @@ export function PayPalCheckout({
                 setBusy(false);
               }
             }}
-            className="h-11 w-full rounded-full bg-accent text-sm font-bold text-[#003087] shadow-[0_8px_30px_-8px_rgba(255,196,57,.7)] transition hover:brightness-105 active:scale-[.98] disabled:opacity-50"
+            className="h-11 w-full rounded-full bg-[#ffc439] text-sm font-bold text-[#003087] transition hover:brightness-105 active:scale-[.98] disabled:opacity-50"
           >
             <span className="italic">Pay</span><span className="italic text-[#009cde]">Pal</span> · Pay now
           </button>

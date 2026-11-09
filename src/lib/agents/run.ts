@@ -32,6 +32,8 @@ type RunOpts = {
   tools: AgentTool[];
   history: ChatTurn[];
   effort?: "low" | "medium" | "high";
+  /** Sampling temperature for OpenAI-compatible providers (Gemini, Ollama). Claude doesn't take one. */
+  temperature?: number;
 };
 
 const MAX_STEPS = 12;
@@ -48,7 +50,7 @@ export function aiProvider() {
       kind: "openai" as const,
       baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
       apiKey: process.env.GEMINI_API_KEY,
-      model: process.env.AI_MODEL ?? "gemini-flash-latest",
+      model: process.env.AI_MODEL ?? "gemini-flash-lite-latest", // the non-lite model is often overloaded on the free tier
     };
   }
   return {
@@ -167,7 +169,7 @@ async function runOpenAICompatible(opts: RunOpts, p: { baseUrl: string; apiKey?:
         "Content-Type": "application/json",
         ...(p.apiKey ? { Authorization: `Bearer ${p.apiKey}` } : {}),
       },
-      body: JSON.stringify({ model: p.model, messages, tools }),
+      body: JSON.stringify({ model: p.model, messages, tools, ...(opts.temperature !== undefined && { temperature: opts.temperature }) }),
     });
     if (!res.ok) {
       const body = await res.text();

@@ -26,8 +26,8 @@ type Request = {
 
 const STATUS: Record<Request["status"], [string, string]> = {
   REQUESTED: ["waiting on the shop", "bg-accent"],
-  APPROVED: ["approved", "bg-[#bfe3c8]"],
-  DECLINED: ["declined", "bg-[#f7c6b0]"],
+  APPROVED: ["approved", "bg-tint-green"],
+  DECLINED: ["declined", "bg-tint-rose"],
 };
 
 export default function ReturnsPage() {
@@ -121,7 +121,7 @@ function Returns() {
                   value={orderId}
                   onChange={(e) => setOrderId(e.target.value)}
                   placeholder="e.g. 4V1222599J869025M"
-                  className="min-w-0 flex-1 rounded-xl border-[1.5px] border-ink bg-background/50 px-4 py-2.5 font-mono text-sm outline-none focus:bg-paper"
+                  className="min-w-0 flex-1 rounded-xl border border-line-strong bg-background/50 px-4 py-2.5 font-mono text-sm outline-none focus:bg-paper"
                   required
                 />
                 <button type="button" onClick={checkStatus} className="btn-line shrink-0 rounded-xl px-3 text-sm">
@@ -158,8 +158,8 @@ function Returns() {
                     key={value}
                     type="button"
                     onClick={() => setType(value)}
-                    className={`rounded-2xl border-[1.5px] p-4 text-left transition ${
-                      type === value ? "border-ink bg-accent/40 shadow-[3px_3px_0_var(--ink)]" : "border-line hover:border-ink"
+                    className={`rounded-2xl border p-4 text-left transition ${
+                      type === value ? "border-line-strong bg-accent/40" : "border-line hover:border-line-strong"
                     }`}
                   >
                     <div className="font-display text-2xl">{title}</div>
@@ -174,8 +174,8 @@ function Returns() {
                 {REASONS.map((r) => (
                   <label
                     key={r.value}
-                    className={`flex cursor-pointer gap-3 rounded-xl border-[1.5px] px-3.5 py-2.5 transition ${
-                      reason === r.value ? "border-ink bg-paper shadow-[2px_2px_0_var(--ink)]" : "border-line hover:border-ink/60"
+                    className={`flex cursor-pointer gap-3 rounded-xl border px-3.5 py-2.5 transition ${
+                      reason === r.value ? "border-line-strong bg-paper" : "border-line hover:border-line-strong/60"
                     }`}
                   >
                     <input
@@ -184,7 +184,7 @@ function Returns() {
                       value={r.value}
                       checked={reason === r.value}
                       onChange={() => setReason(r.value)}
-                      className="mt-1 accent-[#1f1b16]"
+                      className="mt-1 accent-[#d4a659]"
                     />
                     <span>
                       <span className="block text-sm font-medium">{r.value}</span>
@@ -202,11 +202,11 @@ function Returns() {
                 rows={3}
                 maxLength={500}
                 placeholder={type === "exchange" ? "What would you like instead? (size, colour…)" : "A photo description, what went wrong…"}
-                className="w-full resize-none rounded-xl border-[1.5px] border-ink bg-background/50 px-4 py-3 text-sm outline-none focus:bg-paper"
+                className="w-full resize-none rounded-xl border border-line-strong bg-background/50 px-4 py-3 text-sm outline-none focus:bg-paper"
               />
             </Field>
 
-            {error && <p className="rounded-xl bg-[#f7c6b0]/60 px-4 py-2.5 text-sm text-warn">{error}</p>}
+            {error && <p className="rounded-xl bg-tint-rose/60 px-4 py-2.5 text-sm text-warn">{error}</p>}
             <button disabled={busy} className="btn-ink w-full rounded-full py-3.5 text-sm font-semibold disabled:opacity-50">
               {busy ? "Sending…" : `Send ${type} request`}
             </button>
@@ -215,7 +215,7 @@ function Returns() {
       </div>
 
       <aside className="space-y-4 lg:pt-28">
-        <div className="card-soft -rotate-1 rounded-2xl bg-[#fff6d8] p-5">
+        <div className="card-soft -rotate-1 rounded-2xl bg-tint-amber p-5">
           <div className="font-hand text-2xl">the short version</div>
           <ul className="mt-2 space-y-2 text-sm text-muted">
             <li>✳ You have 30 days from the day you paid.</li>

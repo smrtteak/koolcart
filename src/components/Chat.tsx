@@ -160,7 +160,7 @@ export function Chat({
 
   return (
     <section className={`card flex flex-col overflow-hidden rounded-[24px] ${className}`}>
-      <div className="flex items-center gap-3 border-b-[1.5px] border-ink bg-background/70 px-5 py-3.5">
+      <div className="flex items-center gap-3 border-b border-line-strong bg-background/70 px-5 py-3.5">
         <Orb busy={busy} />
         <div className="min-w-0">
           <div className="font-display text-2xl leading-none">{title}</div>
@@ -173,7 +173,7 @@ export function Chat({
         {turns.map((t, i) =>
           t.role === "user" ? (
             <div key={i} className="flex animate-[rise_.35s_ease-out_both] justify-end">
-              <div className="max-w-[85%] rounded-[18px] rounded-br-sm border-[1.5px] border-ink bg-brand px-4 py-2.5 text-sm text-paper shadow-[2px_2px_0_var(--ink)]">
+              <div className="max-w-[85%] rounded-[18px] rounded-br-sm border border-line-strong bg-brand px-4 py-2.5 text-sm text-paper">
                 {t.image && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={t.image} alt="" className="mb-2 max-h-44 rounded-xl" />
@@ -214,7 +214,7 @@ export function Chat({
             <button
               key={s}
               onClick={() => submit(s)}
-              className="shrink-0 rounded-full border-[1.5px] border-dashed border-ink/40 px-3 py-1.5 text-xs text-muted transition hover:border-solid hover:border-ink hover:text-ink"
+              className="shrink-0 rounded-full border border-dashed border-line px-3 py-1.5 text-xs text-muted transition hover:border-solid hover:border-line-strong hover:text-ink"
             >
               {s}
             </button>
@@ -229,7 +229,7 @@ export function Chat({
           submit(input);
         }}
       >
-        <div className="flex items-end gap-2 rounded-[20px] border-[1.5px] border-ink bg-background/60 p-1.5 transition focus-within:bg-paper focus-within:shadow-[3px_3px_0_var(--ink)]">
+        <div className="flex items-end gap-2 rounded-[20px] border border-line-strong bg-background/60 p-1.5 transition focus-within:bg-paper focus-within:border-brand">
           {allowImages && (
             <>
               <input
@@ -247,7 +247,7 @@ export function Chat({
                 type="button"
                 title="Attach a product photo"
                 onClick={() => fileInput.current?.click()}
-                className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-paper text-muted transition hover:border-ink hover:text-ink"
+                className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-paper text-muted transition hover:border-line-strong hover:text-ink"
               >
                 {image ? (
                   // eslint-disable-next-line @next/next/no-img-element
