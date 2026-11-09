@@ -1,10 +1,12 @@
 import { z } from "zod";
 import { startCheckout } from "../commerce";
 import { getOrder } from "../paypal";
-import { publicListing, read, type Listing } from "../store";
+import { publicListing, read, sellerOf, type Listing } from "../store";
 import { runAgent, tool, type ChatTurn } from "./run";
 
-const system = (shopName: string) => `You are the shopping assistant for "${shopName}", an online shop that takes PayPal.
+const system = (shopName: string) => `You are the shopping assistant for "${shopName}", a shared online market that takes PayPal.
+Many independent makers sell here; each product's "seller" is who made or listed it, so mention them when it helps
+("these mugs are from Priya's shelf"). Shoppers can buy from several makers in one checkout.
 You help customers find products, answer questions about them, haggle within limits, and open a PayPal checkout.
 
 Rules:
@@ -80,11 +82,19 @@ export async function runBuyerAgent(history: ChatTurn[]) {
         const { listings } = await read();
         const words = (query ?? "").toLowerCase().split(/\s+/).filter(Boolean);
         const hits = listings.filter((l) => {
-          const hay = [l.title, l.tagline, l.description, l.category, ...l.tags].join(" ").toLowerCase();
+          const hay = [l.title, l.tagline, l.description, l.category, sellerOf(l), ...l.tags].join(" ").toLowerCase();
           return words.length === 0 || words.some((w) => hay.includes(w));
         });
         return JSON.stringify(
-          hits.map((l) => ({ id: l.id, title: l.title, tagline: l.tagline, price: l.price, stock: l.stock, category: l.category })),
+          hits.map((l) => ({
+            id: l.id,
+            title: l.title,
+            tagline: l.tagline,
+            price: l.price,
+            stock: l.stock,
+            category: l.category,
+            seller: sellerOf(l),
+          })),
         );
       },
     }),
@@ -97,7 +107,7 @@ export async function runBuyerAgent(history: ChatTurn[]) {
         if (!l) return "Error: not found. Use search_catalog to find the product id.";
         const { image: _img, ...rest } = publicListing(l);
         void _img;
-        return JSON.stringify(rest);
+        return JSON.stringify({ ...rest, seller: sellerOf(l) });
       },
     }),
     tool({

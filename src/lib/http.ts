@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { timingSafeEqual } from "crypto";
 import { PayPalError } from "@/lib/paypal";
+import { HOUSE_SELLER, sellerKey } from "@/lib/store";
 
 export function errorResponse(e: unknown) {
   console.error(e);
@@ -20,15 +21,26 @@ export function errorResponse(e: unknown) {
 }
 
 /**
- * Seller-only routes call this first. With SELLER_PASSCODE unset the seller studio is open (handy for demos);
- * with it set, requests must carry the passcode in the `x-seller-passcode` header.
- * Returns a 401 response to send back, or null when the request may go ahead.
+ * Every seller-only route calls this first. Sellers identify themselves by name (sent URI-encoded in the
+ * `x-seller-name` header) and can only manage their own listings and orders. Anyone can sell under a new name;
+ * the house account (HOUSE_SELLER, which owns the starter catalog) additionally needs SELLER_PASSCODE when set.
+ * Returns the seller's name, or a response to send back.
  */
-export function sellerGuard(req: Request): Response | null {
+export function sellerAuth(req: Request): { name: string } | { denied: Response } {
+  let name = "";
+  try {
+    name = decodeURIComponent(req.headers.get("x-seller-name") ?? "");
+  } catch {}
+  name = name.replace(/[\u0000-\u001f\u007f<>]/g, "").replace(/\s+/g, " ").trim().slice(0, 40);
+  if (!name) return { denied: Response.json({ error: "Tell us your name first", needsName: true }, { status: 401 }) };
+
   const expected = process.env.SELLER_PASSCODE;
-  if (!expected) return null;
-  const given = Buffer.from(req.headers.get("x-seller-passcode") ?? "");
-  const want = Buffer.from(expected);
-  if (given.length === want.length && timingSafeEqual(given, want)) return null;
-  return Response.json({ error: "Seller passcode required", locked: true }, { status: 401 });
+  if (expected && sellerKey(name) === sellerKey(HOUSE_SELLER)) {
+    const given = Buffer.from(req.headers.get("x-seller-passcode") ?? "");
+    const want = Buffer.from(expected);
+    if (!(given.length === want.length && timingSafeEqual(given, want))) {
+      return { denied: Response.json({ error: "The house account needs the seller passcode", locked: true }, { status: 401 }) };
+    }
+  }
+  return { name };
 }

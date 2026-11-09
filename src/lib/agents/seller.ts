@@ -1,11 +1,13 @@
 import { z } from "zod";
 import * as paypal from "../paypal";
-import { refundOrder } from "../commerce";
+import { ownsListing, refundForSeller, sellerView } from "../commerce";
 import { mutate, newId, read, type Listing } from "../store";
 import { runAgent, tool, type ChatTurn } from "./run";
 
-const SYSTEM = `You are the back-office assistant for a small online shop that takes payments through PayPal.
-The seller talks to you in plain language; you run the shop for them with your tools.
+const system = (sellerName: string) => `You are the back-office assistant for Koolcart, a shared online marketplace that takes
+payments through PayPal. Many independent sellers list here. You are helping ${sellerName}; every tool only sees and
+changes ${sellerName}'s own listings and orders, never other sellers'.
+The seller talks to you in plain language; you run their shelf for them with your tools.
 
 What you do:
 - Turn a rough description (and photo, if attached) into a polished listing: a clear title, a one-line tagline, a
@@ -18,7 +20,7 @@ What you do:
 
 Keep replies short: a few lines, plain text, no markdown headings. Prices are in USD.`;
 
-export async function runSellerAgent(history: ChatTurn[]) {
+export async function runSellerAgent(history: ChatTurn[], sellerName: string) {
   // Listings created or edited this turn, shown as preview cards in the chat.
   const touched = new Set<string>();
   const latestImage = [...history].reverse().find((t) => t.role === "user")?.image;
@@ -37,20 +39,21 @@ export async function runSellerAgent(history: ChatTurn[]) {
   const tools = [
     tool({
       name: "get_shop_overview",
-      description: "Get the shop name, every listing (including floor prices and stock) and a sales summary.",
+      description: "Get this seller's listings (including floor prices and stock) and a summary of their sales.",
       schema: z.object({}),
       run: async () => {
         const db = await read();
-        const paid = db.orders.filter((o) => o.status !== "CREATED");
+        const orders = db.orders.map((o) => sellerView(o, db.listings, sellerName)).filter((o) => o !== null);
+        const paid = orders.filter((o) => o.status !== "CREATED");
         const revenue = paid.reduce((s, o) => s + o.total - (o.refundedAmount ?? 0), 0);
         return JSON.stringify({
-          shopName: db.shopName,
-          listings: db.listings.map(({ image: _i, ...l }) => (void _i, l)),
+          seller: sellerName,
+          listings: db.listings.filter((l) => ownsListing(l, sellerName)).map(({ image: _i, ...l }) => (void _i, l)),
           sales: {
             paidOrders: paid.length,
             netRevenueUSD: Math.round(revenue * 100) / 100,
             negotiatedOrders: paid.filter((o) => o.negotiated).length,
-            abandonedCheckouts: db.orders.filter((o) => o.status === "CREATED").length,
+            abandonedCheckouts: orders.filter((o) => o.status === "CREATED").length,
           },
         });
       },
@@ -79,6 +82,7 @@ export async function runSellerAgent(history: ChatTurn[]) {
           ...input,
           image: latestImage,
           paypalProductId,
+          sellerName,
           createdAt: new Date().toISOString(),
         };
         await mutate((db) => {
@@ -95,12 +99,12 @@ export async function runSellerAgent(history: ChatTurn[]) {
       run: async ({ id, ...patch }) => {
         const updated = await mutate((db) => {
           const l = db.listings.find((x) => x.id === id);
-          if (!l) return null;
+          if (!l || !ownsListing(l, sellerName)) return null;
           Object.assign(l, Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined)));
           if (l.floorPrice > l.price) l.floorPrice = l.price;
           return l;
         });
-        if (!updated) return `Error: no listing ${id}`;
+        if (!updated) return `Error: no listing ${id} in ${sellerName}'s shop`;
         touched.add(id);
         if (updated.paypalProductId && patch.tagline) {
           await paypal.updateCatalogProduct(updated.paypalProductId, { description: patch.tagline }).catch(() => {});
@@ -115,24 +119,25 @@ export async function runSellerAgent(history: ChatTurn[]) {
       run: async ({ id }) => {
         const ok = await mutate((db) => {
           const before = db.listings.length;
-          db.listings = db.listings.filter((l) => l.id !== id);
+          db.listings = db.listings.filter((l) => l.id !== id || !ownsListing(l, sellerName));
           return db.listings.length < before;
         });
-        return ok ? `Removed ${id}.` : `Error: no listing ${id}`;
+        return ok ? `Removed ${id}.` : `Error: no listing ${id} in ${sellerName}'s shop`;
       },
     }),
     tool({
       name: "list_orders",
-      description: "List recent orders, newest first, with status, buyer, lines and PayPal ids.",
+      description: "List this seller's recent orders, newest first: their items in each order, status, buyer and PayPal ids.",
       schema: z.object({ limit: z.number().int().min(1).max(50).optional() }),
       run: async ({ limit }) => {
         const db = await read();
-        return JSON.stringify(db.orders.slice().reverse().slice(0, limit ?? 15));
+        const mine = db.orders.map((o) => sellerView(o, db.listings, sellerName)).filter((o) => o !== null);
+        return JSON.stringify(mine.reverse().slice(0, limit ?? 15));
       },
     }),
     tool({
       name: "refund_order",
-      description: "Refund a paid order through PayPal. Omit amount for a full refund.",
+      description: "Refund this seller's part of a paid order through PayPal. Omit amount to refund all of it.",
       schema: z.object({
         orderId: z.string().describe("PayPal order id"),
         amount: z.number().positive().optional(),
@@ -140,26 +145,15 @@ export async function runSellerAgent(history: ChatTurn[]) {
       }),
       run: async ({ orderId, amount, reason }) => {
         try {
-          const r = await refundOrder(orderId, amount, reason);
-          return `Refund ${r.refundId} ${r.refundStatus}. Order is now ${r.order.status}, refunded $${r.order.refundedAmount?.toFixed(2)}.`;
+          const r = await refundForSeller(orderId, sellerName, amount, reason);
+          return `Refund ${r.refundId} ${r.refundStatus}: $${r.amount.toFixed(2)} returned to the buyer via PayPal.`;
         } catch (e) {
           return `Error: ${(e as Error).message}`;
         }
       },
     }),
-    tool({
-      name: "set_shop_name",
-      description: "Rename the shop.",
-      schema: z.object({ name: z.string().min(1).max(60) }),
-      run: async ({ name }) => {
-        await mutate((db) => {
-          db.shopName = name;
-        });
-        return `Shop renamed to ${name}.`;
-      },
-    }),
   ];
 
-  const { text, steps } = await runAgent({ system: SYSTEM, tools, history });
+  const { text, steps } = await runAgent({ system: system(sellerName), tools, history });
   return { reply: text, steps, listingIds: [...touched] };
 }

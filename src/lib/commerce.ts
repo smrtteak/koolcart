@@ -1,7 +1,7 @@
 // Business rules shared by the AI agents and the plain REST routes.
 // Price floors and stock are enforced here, server-side, never by the model.
 import * as paypal from "./paypal";
-import { mutate, read, type Order } from "./store";
+import { HOUSE_SELLER, mutate, read, sellerKey, sellerOf, type Listing, type Order } from "./store";
 
 export type CartLine = { listingId: string; quantity: number; unitPrice?: number };
 
@@ -37,6 +37,7 @@ export async function startCheckout(lines: CartLine[]): Promise<Order> {
       title: r.listing.title,
       unitPrice: r.unitPrice,
       quantity: r.quantity,
+      sellerName: sellerOf(r.listing),
     })),
     total: resolved.reduce((s, r) => s + Math.round(r.unitPrice * 100) * r.quantity, 0) / 100,
     status: "CREATED",
@@ -85,4 +86,55 @@ export async function refundOrder(orderId: string, amount?: number, reason?: str
     o.status = o.refundedAmount >= o.total - 0.001 ? "REFUNDED" : "PARTIALLY_REFUNDED";
     return { refundId: refund.id, refundStatus: refund.status, order: o };
   });
+}
+
+// ---------- Multi-seller views ----------
+
+export const ownsListing = (l: Listing, name: string) => sellerKey(sellerOf(l)) === sellerKey(name);
+
+function lineSeller(line: Order["lines"][number], listings: Listing[]) {
+  return line.sellerName ?? listings.find((l) => l.id === line.listingId)?.sellerName ?? HOUSE_SELLER;
+}
+
+/**
+ * One seller's view of an order: only their lines, their share of the total, and what's been refunded of it.
+ * Returns null when the order has nothing of theirs.
+ */
+export function sellerView(order: Order, listings: Listing[], name: string): Order | null {
+  const key = sellerKey(name);
+  const lines = order.lines.filter((l) => sellerKey(lineSeller(l, listings)) === key);
+  if (!lines.length) return null;
+  const share = Math.round(lines.reduce((s, l) => s + l.unitPrice * l.quantity, 0) * 100) / 100;
+  const allMine = lines.length === order.lines.length;
+  const refunded = allMine ? (order.refundedAmount ?? 0) : (order.refundedBySeller?.[key] ?? 0);
+  const status =
+    order.status === "CREATED"
+      ? "CREATED"
+      : refunded >= share - 0.001
+        ? "REFUNDED"
+        : refunded > 0
+          ? "PARTIALLY_REFUNDED"
+          : "COMPLETED";
+  return { ...order, lines, total: share, refundedAmount: refunded || undefined, status };
+}
+
+/** Refunds (part of) one seller's share of an order through PayPal. Defaults to everything still refundable. */
+export async function refundForSeller(orderId: string, name: string, amount?: number, reason?: string) {
+  const db = await read();
+  const order = db.orders.find((o) => o.id === orderId);
+  if (!order) throw new Error("Order not found");
+  const view = sellerView(order, db.listings, name);
+  if (!view) throw new Error("That order doesn't include any of your items");
+  if (view.status === "CREATED") throw new Error("Order was never paid");
+  const available = Math.round((view.total - (view.refundedAmount ?? 0)) * 100) / 100;
+  if (available <= 0.001) throw new Error("Your part of this order is already refunded");
+  const value = amount ?? available;
+  if (value > available + 0.001) throw new Error(`You can refund at most $${available.toFixed(2)} on this order`);
+  const result = await refundOrder(orderId, value, reason);
+  await mutate((db) => {
+    const o = db.orders.find((x) => x.id === orderId)!;
+    const key = sellerKey(name);
+    o.refundedBySeller = { ...o.refundedBySeller, [key]: Math.round(((o.refundedBySeller?.[key] ?? 0) + value) * 100) / 100 };
+  });
+  return { ...result, amount: value };
 }

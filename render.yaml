@@ -6,6 +6,9 @@ services:
     buildCommand: npm ci && npm run build
     startCommand: npm start
     envVars:
+      # Shared database so every visitor sees the same shop (free Neon Postgres works). Without it, data resets on restart.
+      - key: DATABASE_URL
+        sync: false
       # Set ONE AI option: GEMINI_API_KEY (free), ANTHROPIC_API_KEY, or AI_BASE_URL + AI_API_KEY
       - key: GEMINI_API_KEY
         sync: false
@@ -13,9 +16,6 @@ services:
         sync: false
       - key: PAYPAL_CLIENT_SECRET
         sync: false
-      # Public demo: roll the shop back to the starter catalog every hour.
-      - key: DEMO_RESET_HOURS
-        value: "1"
-      # Optional: require a passcode for the seller studio (share it with judges). Leave empty to keep it open.
+      # Protects the house account ("Koolcart", which owns the starter shelf). Everyone else sells under their own name.
       - key: SELLER_PASSCODE
         sync: false

@@ -1,16 +1,17 @@
-import { errorResponse, sellerGuard } from "@/lib/http";
+import { ownsListing } from "@/lib/commerce";
+import { errorResponse, sellerAuth } from "@/lib/http";
 import { mutate } from "@/lib/store";
 
-// Quick edits from the seller dashboard (stock +/-), and delete.
+// Quick edits from the seller dashboard (stock +/-), and delete. Sellers can only touch their own listings.
 export async function PATCH(req: Request, ctx: RouteContext<"/api/listings/[id]">) {
-  const denied = sellerGuard(req);
-  if (denied) return denied;
+  const auth = sellerAuth(req);
+  if ("denied" in auth) return auth.denied;
   try {
     const { id } = await ctx.params;
     const { stockDelta } = (await req.json()) as { stockDelta: number };
     const listing = await mutate((db) => {
       const l = db.listings.find((x) => x.id === id);
-      if (!l) throw new Error("Listing not found");
+      if (!l || !ownsListing(l, auth.name)) throw new Error("Listing not found in your shop");
       l.stock = Math.max(0, l.stock + Math.trunc(stockDelta));
       return l;
     });
@@ -21,11 +22,17 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/listings/[id]"
 }
 
 export async function DELETE(req: Request, ctx: RouteContext<"/api/listings/[id]">) {
-  const denied = sellerGuard(req);
-  if (denied) return denied;
-  const { id } = await ctx.params;
-  await mutate((db) => {
-    db.listings = db.listings.filter((l) => l.id !== id);
-  });
-  return Response.json({ ok: true });
+  const auth = sellerAuth(req);
+  if ("denied" in auth) return auth.denied;
+  try {
+    const { id } = await ctx.params;
+    await mutate((db) => {
+      const l = db.listings.find((x) => x.id === id);
+      if (!l || !ownsListing(l, auth.name)) throw new Error("Listing not found in your shop");
+      db.listings = db.listings.filter((x) => x.id !== id);
+    });
+    return Response.json({ ok: true });
+  } catch (e) {
+    return errorResponse(e);
+  }
 }

@@ -1,7 +1,9 @@
-// Tiny JSON-file datastore. Good enough for a hackathon demo; swap for a DB later.
+// Tiny document store. Locally it's a JSON file; with DATABASE_URL set (e.g. a free Neon Postgres) the same
+// document lives in one Postgres row, so every server instance and restart sees the same shared shop.
 import { promises as fs } from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
+import { Pool, type PoolClient } from "pg";
 import starterCatalog from "./starter-catalog.json";
 
 export type Listing = {
@@ -17,12 +19,20 @@ export type Listing = {
   tags: string[];
   image?: string;
   paypalProductId?: string;
+  /** Who listed it, as they introduced themselves in the seller studio. */
+  sellerName?: string;
   createdAt: string;
 };
 
+/** Listings without a seller name (the starter catalog) belong to the house shop. */
+export const HOUSE_SELLER = "Koolcart";
+export const sellerOf = (l: Pick<Listing, "sellerName">) => l.sellerName ?? HOUSE_SELLER;
+/** Seller names are matched case-insensitively. */
+export const sellerKey = (name: string) => name.trim().replace(/\s+/g, " ").toLowerCase();
+
 export type Order = {
   id: string; // PayPal order id
-  lines: { listingId: string; title: string; unitPrice: number; quantity: number }[];
+  lines: { listingId: string; title: string; unitPrice: number; quantity: number; sellerName?: string }[];
   total: number;
   status: "CREATED" | "COMPLETED" | "REFUNDED" | "PARTIALLY_REFUNDED";
   negotiated: boolean;
@@ -30,6 +40,8 @@ export type Order = {
   payerEmail?: string;
   payerName?: string;
   refundedAmount?: number;
+  /** Refunds per seller (by sellerKey), for orders that mix several sellers' items. */
+  refundedBySeller?: Record<string, number>;
   createdAt: string;
   capturedAt?: string;
 };
@@ -69,9 +81,6 @@ const FILE = process.env.DATA_FILE ?? path.join(/*turbopackIgnore: true*/ proces
 
 const EMPTY: DB = { shopName: "Koolcart", listings: [], orders: [], returns: [] };
 
-// Serialize writes so concurrent requests don't clobber each other.
-let queue: Promise<unknown> = Promise.resolve();
-
 /** A fresh shop (new clone or deploy) opens with the starter catalog instead of empty shelves. */
 function starterShop(): DB {
   const now = Date.now();
@@ -98,45 +107,112 @@ function resetDue(db: DB) {
   return Date.now() - last >= hours * 3600_000;
 }
 
-async function load(): Promise<DB> {
+/** Fills in fields older documents lack, and applies a scheduled demo reset if one is due. */
+function prepare(raw: unknown): { db: DB; replaced: boolean } {
+  const db = { ...structuredClone(EMPTY), ...(raw as Partial<DB>) } as DB;
+  if (resetDue(db)) return { db: starterShop(), replaced: true };
+  return { db, replaced: false };
+}
+
+// ---------- JSON file (local development) ----------
+
+// Serialize writes so concurrent requests don't clobber each other.
+let queue: Promise<unknown> = Promise.resolve();
+
+async function loadFile(): Promise<DB> {
   let raw: string;
   try {
     raw = await fs.readFile(FILE, "utf8");
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
     const db = starterShop();
-    await save(db);
+    await saveFile(db);
     return db;
   }
-  // Older data files predate returns; fill in anything missing.
-  const db = { ...structuredClone(EMPTY), ...JSON.parse(raw) } as DB;
-  if (resetDue(db)) {
-    const fresh = starterShop();
-    await save(fresh);
-    return fresh;
-  }
+  const { db, replaced } = prepare(JSON.parse(raw));
+  if (replaced) await saveFile(db);
   return db;
 }
 
-async function save(db: DB) {
+async function saveFile(db: DB) {
   await fs.mkdir(path.dirname(FILE), { recursive: true });
   await fs.writeFile(FILE, JSON.stringify(db, null, 2));
 }
 
-export function read(): Promise<DB> {
-  return queue.then(load);
+// ---------- Postgres (shared deployments) ----------
+
+const DATABASE_URL = process.env.DATABASE_URL;
+let pool: Pool | null = null;
+let ready: Promise<void> | null = null;
+
+function db(): Pool {
+  pool ??= new Pool({ connectionString: DATABASE_URL, max: 5 });
+  return pool;
 }
 
-export function mutate<T>(fn: (db: DB) => T | Promise<T>): Promise<T> {
-  const next = queue.then(async () => {
-    const db = await load();
-    const result = await fn(db);
-    await save(db);
-    return result;
+/** Creates the table and seeds the starter shop the first time. Safe to run on every boot. */
+function ensureSchema() {
+  ready ??= (async () => {
+    await db().query("create table if not exists koolcart_store (id text primary key, doc jsonb not null)");
+    await db().query("insert into koolcart_store (id, doc) values ('main', $1) on conflict (id) do nothing", [
+      JSON.stringify(starterShop()),
+    ]);
+  })().catch((e) => {
+    ready = null; // retry on the next request
+    throw e;
   });
-  queue = next.catch(() => {});
-  return next;
+  return ready;
 }
+
+async function loadRow(client: PoolClient | Pool, lock: boolean): Promise<DB> {
+  const { rows } = await client.query(`select doc from koolcart_store where id = 'main'${lock ? " for update" : ""}`);
+  const { db: doc, replaced } = prepare(rows[0]?.doc);
+  if (replaced) await saveRow(client, doc);
+  return doc;
+}
+
+const saveRow = (client: PoolClient | Pool, doc: DB) =>
+  client.query("update koolcart_store set doc = $1 where id = 'main'", [JSON.stringify(doc)]);
+
+// ---------- Public API ----------
+
+export async function read(): Promise<DB> {
+  if (!DATABASE_URL) return queue.then(loadFile);
+  await ensureSchema();
+  return loadRow(db(), false);
+}
+
+/** Runs `fn` against the latest data and saves the result atomically. */
+export async function mutate<T>(fn: (db: DB) => T | Promise<T>): Promise<T> {
+  if (!DATABASE_URL) {
+    const next = queue.then(async () => {
+      const doc = await loadFile();
+      const result = await fn(doc);
+      await saveFile(doc);
+      return result;
+    });
+    queue = next.catch(() => {});
+    return next;
+  }
+  await ensureSchema();
+  const client = await db().connect();
+  try {
+    await client.query("begin");
+    const doc = await loadRow(client, true); // row lock: concurrent writers wait their turn
+    const result = await fn(doc);
+    await saveRow(client, doc);
+    await client.query("commit");
+    return result;
+  } catch (e) {
+    await client.query("rollback").catch(() => {});
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
+/** Where shop data lives, for the status line in docs and logs. */
+export const storageMode = () => (DATABASE_URL ? "postgres" : "file");
 
 export const newId = () => randomUUID().slice(0, 8);
 

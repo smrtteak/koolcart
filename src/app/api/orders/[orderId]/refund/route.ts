@@ -1,13 +1,13 @@
-import { refundOrder } from "@/lib/commerce";
-import { errorResponse, sellerGuard } from "@/lib/http";
+import { refundForSeller } from "@/lib/commerce";
+import { errorResponse, sellerAuth } from "@/lib/http";
 
-// One-click full refund from the seller dashboard.
+// One-click refund from the seller dashboard: refunds this seller's share of the order through PayPal.
 export async function POST(req: Request, ctx: RouteContext<"/api/orders/[orderId]/refund">) {
-  const denied = sellerGuard(req);
-  if (denied) return denied;
+  const auth = sellerAuth(req);
+  if ("denied" in auth) return auth.denied;
   try {
     const { orderId } = await ctx.params;
-    return Response.json(await refundOrder(orderId, undefined, "Refunded by the seller"));
+    return Response.json(await refundForSeller(orderId, auth.name, undefined, "Refunded by the seller"));
   } catch (e) {
     return errorResponse(e);
   }

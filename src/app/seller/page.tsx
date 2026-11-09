@@ -59,60 +59,96 @@ const returnStatus: Record<ReturnRequest["status"], [string, string]> = {
 };
 
 const PASS_KEY = "koolcart.sellerPasscode";
+const NAME_KEY = "koolcart.sellerName";
+const HOUSE = "koolcart";
+
+// The name and passcode are per-browser conveniences; storage may be unavailable, so never depend on it.
+function stored(storage: () => Storage, key: string) {
+  try {
+    return storage().getItem(key) ?? "";
+  } catch {
+    return "";
+  }
+}
+function store(storage: () => Storage, key: string, value: string) {
+  try {
+    if (value) storage().setItem(key, value);
+    else storage().removeItem(key);
+  } catch {}
+}
 
 export default function SellerStudio() {
   const config = usePayPalConfig();
-  // undefined = not checked yet; "" = no passcode saved.
+  // undefined = not checked yet; "" = nothing saved.
+  const [name, setName] = useState<string>();
   const [passcode, setPasscode] = useState<string>();
 
-  // Remembering the passcode for this tab is a convenience only; storage may be unavailable.
   useEffect(() => {
-    let saved = "";
-    try {
-      saved = sessionStorage.getItem(PASS_KEY) ?? "";
-    } catch {}
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPasscode(saved);
+    setName(stored(() => localStorage, NAME_KEY));
+    setPasscode(stored(() => sessionStorage, PASS_KEY));
   }, []);
 
-  const save = (p: string) => {
-    try {
-      if (p) sessionStorage.setItem(PASS_KEY, p);
-      else sessionStorage.removeItem(PASS_KEY);
-    } catch {}
+  const saveName = (n: string) => {
+    store(() => localStorage, NAME_KEY, n);
+    setName(n);
+  };
+  const savePasscode = (p: string) => {
+    store(() => sessionStorage, PASS_KEY, p);
     setPasscode(p);
   };
 
-  if (!config || passcode === undefined) return null;
-  if (config.sellerLocked && !passcode) return <PasscodeGate onUnlock={save} />;
+  if (!config || name === undefined || passcode === undefined) return null;
+  if (!name) return <NameGate onSave={saveName} />;
+  const isHouse = name.trim().toLowerCase() === HOUSE;
+  if (isHouse && config.sellerLocked && !passcode) {
+    return <PasscodeGate name={name} onUnlock={savePasscode} onBack={() => saveName("")} />;
+  }
+  const headers: Record<string, string> = { "x-seller-name": encodeURIComponent(name) };
+  if (passcode) headers["x-seller-passcode"] = passcode;
   return (
     <Studio
-      headers={passcode ? { "x-seller-passcode": passcode } : {}}
+      key={name}
+      name={name}
+      headers={headers}
       demoResetHours={config.demoResetHours}
-      onLocked={() => save("")}
+      onLocked={() => savePasscode("")}
+      onChangeName={() => {
+        savePasscode("");
+        saveName("");
+      }}
     />
   );
 }
 
 function Studio({
+  name,
   headers,
   demoResetHours,
   onLocked,
+  onChangeName,
 }: {
+  name: string;
   headers: Record<string, string>;
   demoResetHours: number | null;
   onLocked: () => void;
+  onChangeName: () => void;
 }) {
-  const { data, refresh } = useLive<Dashboard & { locked?: boolean }>("/api/seller/dashboard", 3000, headers);
+  const { data, refresh } = useLive<Dashboard & { locked?: boolean; needsName?: boolean }>(
+    "/api/seller/dashboard",
+    3000,
+    headers,
+  );
   const [tab, setTab] = useState<"shelf" | "orders" | "returns">("shelf");
   const [busyId, setBusyId] = useState<string>();
   const chat = useRef<ChatHandle>(null);
   const freshOrders = useFreshIds(data?.orders?.map((o) => o.id));
 
-  // The passcode changed on the server, or was wrong: go back to the passcode screen.
+  // The passcode changed on the server or was wrong, or the name was rejected: ask again.
   useEffect(() => {
     if (data?.locked) onLocked();
-  }, [data?.locked, onLocked]);
+    if (data?.needsName) onChangeName();
+  }, [data?.locked, data?.needsName, onLocked, onChangeName]);
 
   async function send(history: Turn[]) {
     const res = await postJSON<{ reply: string; steps: Step[]; listingIds: string[] }>("/api/seller/chat", {
@@ -171,7 +207,7 @@ function Studio({
           title="Shop helper"
           subtitle="Lists things, sorts prices, handles refunds"
           intro={
-            "Got something new to sell? Tell me about it in your own words. Snap a photo if you can, and I'll write it up, suggest a price and put it on the shelf."
+            `Hi ${name}! Got something to sell? Tell me about it in your own words. Snap a photo if you can, and I'll write it up, suggest a price and put it on the shelf with your name on it.`
           }
           suggestions={["How's business?", "What's running low?", "Make my titles better"]}
           allowImages
@@ -182,8 +218,13 @@ function Studio({
       <div className="min-w-0 space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <div className="font-hand text-2xl text-brand">the back room</div>
-            <h1 className="font-display text-5xl leading-none sm:text-6xl">{data?.shopName ?? " "}</h1>
+            <div className="font-hand text-2xl text-brand">
+              the back room ·{" "}
+              <button onClick={onChangeName} className="underline decoration-dotted underline-offset-4 hover:text-ink">
+                not {name}?
+              </button>
+            </div>
+            <h1 className="font-display text-5xl leading-none sm:text-6xl">{name}&apos;s shelf</h1>
           </div>
           <Link href="/" className="btn-line rounded-full px-4 py-2 text-sm hover:bg-accent">
             See the shop →
@@ -525,7 +566,7 @@ function Empty({ title, text }: { title: string; text: string }) {
   );
 }
 
-function PasscodeGate({ onUnlock }: { onUnlock: (passcode: string) => void }) {
+function PasscodeGate({ name, onUnlock, onBack }: { name: string; onUnlock: (passcode: string) => void; onBack: () => void }) {
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -534,7 +575,9 @@ function PasscodeGate({ onUnlock }: { onUnlock: (passcode: string) => void }) {
     e.preventDefault();
     setBusy(true);
     setError("");
-    const res = await fetch("/api/seller/dashboard", { headers: { "x-seller-passcode": value } }).catch(() => null);
+    const res = await fetch("/api/seller/dashboard", {
+      headers: { "x-seller-name": encodeURIComponent(name), "x-seller-passcode": value },
+    }).catch(() => null);
     setBusy(false);
     if (res?.ok) onUnlock(value);
     else setError("That's not it. Check the passcode and try again.");
@@ -546,8 +589,8 @@ function PasscodeGate({ onUnlock }: { onUnlock: (passcode: string) => void }) {
         <div className="font-hand text-2xl text-brand">staff only, mostly</div>
         <h1 className="font-display text-5xl leading-none">The back room</h1>
         <p className="mt-3 text-sm text-muted">
-          Enter the seller passcode to list products, see orders and handle refunds. Judges: it&apos;s in the project
-          description.
+          &ldquo;{name}&rdquo; is the house account that runs the starter shelf, so it needs the seller passcode. Judges:
+          it&apos;s in the project description.
         </p>
         <input
           type="password"
@@ -561,7 +604,50 @@ function PasscodeGate({ onUnlock }: { onUnlock: (passcode: string) => void }) {
         <button disabled={busy || !value} className="btn-ink mt-4 w-full rounded-full py-3 text-sm font-semibold disabled:opacity-40">
           {busy ? "Checking…" : "Open the back room"}
         </button>
-        <Link href="/" className="mt-4 block text-center text-sm text-muted underline decoration-dotted underline-offset-4">
+        <button
+          type="button"
+          onClick={onBack}
+          className="mt-4 block w-full text-center text-sm text-muted underline decoration-dotted underline-offset-4"
+        >
+          ← sell under a different name
+        </button>
+      </form>
+    </div>
+  );
+}
+
+/** First visit to the seller studio: ask who's selling. The name goes on every listing, for everyone to see. */
+function NameGate({ onSave }: { onSave: (name: string) => void }) {
+  const [value, setValue] = useState("");
+  const clean = value.replace(/\s+/g, " ").trim();
+  return (
+    <div className="mx-auto max-w-md pt-10">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (clean) onSave(clean);
+        }}
+        className="card rounded-[24px] p-8"
+      >
+        <div className="font-hand text-2xl text-brand">pull up a stool</div>
+        <h1 className="font-display text-5xl leading-none">Who&apos;s selling?</h1>
+        <p className="mt-3 text-sm text-muted">
+          Koolcart is a shared market: anyone can sell here. Your name goes on everything you list, so shoppers know who
+          made it, and only you can edit or refund your things.
+        </p>
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Your name or shop name"
+          maxLength={40}
+          autoFocus
+          className="mt-6 w-full rounded-xl border-[1.5px] border-ink bg-background/50 px-4 py-3 text-sm outline-none focus:bg-paper"
+        />
+        <button disabled={!clean} className="btn-ink mt-4 w-full rounded-full py-3 text-sm font-semibold disabled:opacity-40">
+          Start selling
+        </button>
+        <p className="mt-3 text-center text-xs text-muted">Visible to everyone who visits the shop.</p>
+        <Link href="/" className="mt-3 block text-center text-sm text-muted underline decoration-dotted underline-offset-4">
           ← back to the shop
         </Link>
       </form>

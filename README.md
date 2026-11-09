@@ -93,18 +93,32 @@ If `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` are not set, the app runs in **Pa
 3. Pay with the sandbox personal account in the PayPal popup. The chat confirms the payment and stock goes down.
 4. **Seller studio** → *"How are sales?"* → *"Refund the last order, the buyer changed their mind."* The order flips to REFUNDED in PayPal and on the dashboard.
 
-## Deploy (Render)
+## A shared market
 
-`render.yaml` is included: *New → Blueprint* on Render, point it at this repo, and fill in the PayPal vars plus `GEMINI_API_KEY`. A hosted server can't reach your local Ollama, so use Gemini, or `AI_BASE_URL=https://ollama.com/v1` with an Ollama API key. Data is a JSON file (`data/store.json`). On Render's free tier it resets to the starter catalog on each deploy.
+Koolcart is a network, not a single shop. Anyone can open **Sell** and is asked for their name once. Their listings show **"by <name>"** to everyone, shoppers can filter by maker, and the shopkeeper AI mentions who made what. One cart can mix several makers.
 
-For a public demo, two optional settings keep the shop safe without hiding anything from judges:
+Each seller's back room (`/seller`) only shows **their** listings, their part of each order, and returns on those orders. The server enforces this: seller APIs and the seller AI's tools can only edit, delete or refund the caller's own items. In a mixed cart, a seller can refund only their share. Sellers are identified by name only (no accounts), which suits a demo; add real sign-in before using this for real money.
 
-| Setting | What it does |
-|---|---|
-| `DEMO_RESET_HOURS=1` | Rolls the shop back to the 18 starter products (and clears test orders) every hour, so anything a visitor deletes or changes fixes itself. The seller studio shows a note saying so. Set by default in `render.yaml`. |
-| `SELLER_PASSCODE=…` | Puts the seller studio behind a passcode. Seller-only APIs (chat, dashboard, stock, delete, refunds, returns) reject requests without it. Share the passcode in your project description so judges can get in. Leave it unset to keep the studio open. |
+The 18 starter products belong to the house account **"Koolcart"**. Set `SELLER_PASSCODE` to keep visitors from editing them.
 
-Neither is set locally by default, so your own shop is never reset or locked.
+## Put it online (Render + Neon, free)
+
+On a free host the server's disk is wiped on every restart, so a hosted Koolcart needs a database to keep everyone's listings. Set `DATABASE_URL` and the shop lives in Postgres; without it, it lives in `data/store.json`.
+
+1. **Database (Neon, free).** Sign up at [neon.tech](https://neon.tech), create a project, and copy its **connection string** (`postgresql://…?sslmode=require`). Koolcart creates its table and seeds the starter shelf on first start.
+2. **AI key (Gemini, free).** Create a key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey). A hosted server can't reach the Ollama on your laptop.
+3. **Deploy (Render, free).** Sign in at [render.com](https://render.com) with GitHub → **New → Blueprint** → pick this repo. Render reads `render.yaml` and asks for:
+   - `DATABASE_URL`: the Neon connection string
+   - `GEMINI_API_KEY`
+   - `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET`: your sandbox app
+   - `SELLER_PASSCODE`: any phrase; it protects the house "Koolcart" account
+4. Click **Apply**. The first build takes a few minutes, and you get a URL like `https://koolcart.onrender.com`.
+
+**Check it works:** the header badge says **PayPal sandbox · live**; open **Sell**, enter a name and list something; open the site in another browser or on your phone and the listing shows **"by <your name>"**.
+
+The free Render tier sleeps after about 15 idle minutes, so the first visit after that takes 30–60 seconds. Everything is saved in Neon, so nothing is lost.
+
+Optional: `DEMO_RESET_HOURS=N` wipes the shop back to the starter catalog every N hours. That also erases sellers' listings, so leave it off for a shared market.
 
 ## Tech
 
@@ -118,16 +132,17 @@ Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · Gemini / Ollama (Open
 | **Gemma 4 via Ollama** (`gemma4:31b-cloud`) | Default AI model for the seller helper and the shopkeeper agents (tool calling). Used in the demo video. |
 | Google Gemini API / Anthropic Claude | Optional AI providers; the same agents and tools run on either when its key is set. |
 | Next.js, React, TypeScript, Tailwind CSS, Zod | App framework, UI and tool schemas. |
+| PostgreSQL (`pg`), e.g. Neon | Shared storage for hosted deployments. |
 | Playwright, ffmpeg, macOS speech | Used only to record and narrate the demo video, not part of the app. |
 
-**Sponsor tools:** none of the hackathon sponsor tools (AG Grid, APIMatic, Astropods, Bryntum, Channel3, Elastic, KERNEL, Postman, Render, Zapier) are used. A `render.yaml` is included so the app *can* be deployed to Render, but the submission does not rely on it.
+**Sponsor tools:** none of the hackathon sponsor tools (AG Grid, APIMatic, Astropods, Bryntum, Channel3, Elastic, KERNEL, Postman, Render, Zapier) are used. A `render.yaml` is included so the app can be deployed to Render (see [Put it online](#put-it-online-render--neon-free)); if you do deploy there, Render counts as a sponsor tool you used.
 
 ## Project layout
 
 ```
 src/lib/paypal.ts          PayPal REST client (OAuth, Catalog, Orders, Refunds)
 src/lib/commerce.ts        checkout / capture / refund rules (price floors, stock)
-src/lib/store.ts           JSON-file datastore (seeds the starter catalog on first run)
+src/lib/store.ts           datastore: JSON file locally, Postgres when DATABASE_URL is set (seeds the starter catalog)
 src/lib/starter-catalog.json  18 starter products
 src/lib/agents/seller.ts   seller agent + tools
 src/lib/agents/buyer.ts    shopper agent + haggling policy

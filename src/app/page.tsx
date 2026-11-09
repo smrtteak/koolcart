@@ -17,6 +17,7 @@ type Product = {
   category: string;
   tags: string[];
   image?: string;
+  sellerName?: string;
   createdAt: string;
 };
 
@@ -27,6 +28,8 @@ type Paid = { id: string; total: number; payerName?: string };
 
 const NEW_MS = 24 * 60 * 60 * 1000;
 const usd = (n: number) => `$${n.toFixed(2)}`;
+// Starter-catalog items have no seller name; they belong to the house shop.
+const maker = (p: { sellerName?: string }) => p.sellerName ?? "Koolcart";
 // Small, stable per-item rotation so stickers look placed by hand.
 const tiltOf = (id: string) => ((id.charCodeAt(0) + id.charCodeAt(id.length - 1)) % 7) - 3;
 
@@ -46,6 +49,7 @@ export default function Storefront() {
   const [open, setOpen] = useState<Product | null>(null);
   const [category, setCategory] = useState("All");
   const [sort, setSort] = useState<"new" | "low" | "high">("new");
+  const [makerFilter, setMakerFilter] = useState("All makers");
   const [offerFor, setOfferFor] = useState<Product | null>(null);
   const chat = useRef<ChatHandle>(null);
   const chatBox = useRef<HTMLDivElement>(null);
@@ -54,13 +58,16 @@ export default function Storefront() {
   const now = shop?.now ?? 0;
   const byId = useMemo(() => new Map(listings.map((l) => [l.id, l])), [listings]);
   const categories = useMemo(() => ["All", ...new Set(listings.map((l) => l.category))], [listings]);
+  const makers = useMemo(() => [...new Set(listings.map(maker))].sort((a, b) => a.localeCompare(b)), [listings]);
 
   const visible = useMemo(() => {
-    const filtered = listings.filter((l) => category === "All" || l.category === category);
+    const filtered = listings.filter(
+      (l) => (category === "All" || l.category === category) && (makerFilter === "All makers" || maker(l) === makerFilter),
+    );
     return filtered.sort((a, b) =>
       sort === "low" ? a.price - b.price : sort === "high" ? b.price - a.price : b.createdAt.localeCompare(a.createdAt),
     );
-  }, [listings, category, sort]);
+  }, [listings, category, sort, makerFilter]);
 
   const ask = (text: string) => {
     chat.current?.send(text);
@@ -125,7 +132,10 @@ export default function Storefront() {
         {listings.length > 0 && (
           <div className="flex flex-wrap items-end gap-3">
             <h2 className="mr-auto font-display text-4xl leading-none">
-              On the shelf <span className="font-hand text-2xl text-muted">({listings.length})</span>
+              On the shelf{" "}
+              <span className="font-hand text-2xl text-muted">
+                ({listings.length} things from {makers.length} {makers.length === 1 ? "maker" : "makers"})
+              </span>
             </h2>
             <div className="scrollbar-none flex gap-1.5 overflow-x-auto">
               {categories.map((c) => (
@@ -140,6 +150,19 @@ export default function Storefront() {
                 </button>
               ))}
             </div>
+            {makers.length > 1 && (
+              <select
+                value={makerFilter}
+                onChange={(e) => setMakerFilter(e.target.value)}
+                aria-label="Filter by maker"
+                className="rounded-full border-[1.5px] border-line bg-transparent px-3 py-1 text-sm text-muted outline-none focus:border-ink"
+              >
+                <option>All makers</option>
+                {makers.map((m) => (
+                  <option key={m}>{m}</option>
+                ))}
+              </select>
+            )}
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as typeof sort)}
@@ -156,7 +179,7 @@ export default function Storefront() {
           <div className="card rounded-[24px] p-12 text-center">
             <div className="font-display text-4xl italic">The shelves are bare.</div>
             <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
-              We&apos;re restocking. If you&apos;re the owner, head to{" "}
+              We&apos;re restocking. Got something to sell? Head to{" "}
               <Link className="text-ink underline underline-offset-4" href="/seller">
                 Sell
               </Link>{" "}
@@ -335,6 +358,7 @@ function ProductCard({
             <button onClick={onOpen} className="min-w-0 text-left">
               <div className="font-display text-2xl leading-tight">{p.title}</div>
               <div className="mt-0.5 line-clamp-1 text-sm text-muted">{p.tagline}</div>
+              <div className="font-hand text-lg leading-tight text-brand">by {maker(p)}</div>
             </button>
             <div className="shrink-0 font-display text-2xl tabular-nums">{usd(p.price)}</div>
           </div>
@@ -563,7 +587,9 @@ function ProductModal({
           )}
         </div>
         <div className="flex flex-col gap-4 p-7">
-          <div className="font-hand text-xl text-brand">{p.category.toLowerCase()}</div>
+          <div className="font-hand text-xl text-brand">
+            {p.category.toLowerCase()} · from {maker(p)}&apos;s shelf
+          </div>
           <h2 className="-mt-3 font-display text-4xl leading-[1.05]">{p.title}</h2>
           <div className="flex items-baseline gap-3">
             <span className="font-display text-3xl tabular-nums">{usd(p.price)}</span>
