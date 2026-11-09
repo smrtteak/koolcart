@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+<defs><filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .25  0 0 0 0 .2  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter></defs>
+<rect width="600" height="450" fill="#f7eecd"/><rect width="600" height="450" fill="#f7eecd" filter="url(#paper)"/>
+<circle cx="510" cy="80" r="46" fill="#ffffff" opacity=".45"/><circle cx="80" cy="380" r="30" fill="#ffffff" opacity=".35"/>
+<ellipse cx="300" cy="378" rx="170" ry="20" fill="#1f1b16" opacity=".12"/>
+<g stroke="#1f1b16" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+
+<rect x="150" y="150" width="170" height="170" rx="10" fill="#f2c94c" transform="rotate(-10 235 235)"/>
+<rect x="250" y="130" width="170" height="170" rx="10" fill="#9cc3b0" transform="rotate(6 335 215)"/>
+<rect x="210" y="210" width="170" height="160" rx="10" fill="#e9a0a0" transform="rotate(-2 295 290)"/>
+<g stroke-width="3" fill="#fbf8f2"><circle cx="250" cy="260" r="12"/><circle cx="300" cy="300" r="10"/><circle cx="345" cy="255" r="12"/><circle cx="270" cy="330" r="8"/></g>
+</g></svg>

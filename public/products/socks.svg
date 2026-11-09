@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+<defs><filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .25  0 0 0 0 .2  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter></defs>
+<rect width="600" height="450" fill="#e3ecf2"/><rect width="600" height="450" fill="#e3ecf2" filter="url(#paper)"/>
+<circle cx="510" cy="80" r="46" fill="#f2b83a" opacity=".45"/><circle cx="80" cy="380" r="30" fill="#f2b83a" opacity=".35"/>
+<ellipse cx="300" cy="378" rx="170" ry="20" fill="#1f1b16" opacity=".12"/>
+<g stroke="#1f1b16" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+
+<path d="M200 90 L270 90 L270 260 Q270 300 300 320 L330 340 Q350 360 330 380 L250 380 Q200 380 200 330 Z" fill="#8a9fb5"/>
+<path d="M200 90 L270 90 L270 130 L200 130 Z" fill="#6f859c"/>
+<path d="M210 100 L210 120 M225 100 L225 120 M240 100 L240 120 M255 100 L255 120" stroke-width="3"/>
+<path d="M200 200 L270 200 M200 225 L270 225" stroke="#f6ead6" stroke-width="6"/>
+<path d="M320 70 L390 70 L390 240 Q390 280 420 300 L450 320 Q470 340 450 360 L370 360 Q320 360 320 310 Z" fill="#c9a26b"/>
+<path d="M320 70 L390 70 L390 110 L320 110 Z" fill="#ad8752"/>
+<path d="M330 80 L330 100 M345 80 L345 100 M360 80 L360 100 M375 80 L375 100" stroke-width="3"/>
+<path d="M320 180 L390 180 M320 205 L390 205" stroke="#f6ead6" stroke-width="6"/>
+</g></svg>

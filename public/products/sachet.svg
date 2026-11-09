@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+<defs><filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .25  0 0 0 0 .2  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter></defs>
+<rect width="600" height="450" fill="#ece6f3"/><rect width="600" height="450" fill="#ece6f3" filter="url(#paper)"/>
+<circle cx="510" cy="80" r="46" fill="#ffffff" opacity=".45"/><circle cx="80" cy="380" r="30" fill="#ffffff" opacity=".35"/>
+<ellipse cx="300" cy="378" rx="170" ry="20" fill="#1f1b16" opacity=".12"/>
+<g stroke="#1f1b16" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+
+<path d="M200 170 L280 170 L290 340 Q240 360 190 340 Z" fill="#b9a6d9"/>
+<path d="M195 170 Q240 140 285 170" fill="none" stroke-width="5"/>
+<path d="M200 185 L280 185" stroke="#f6ead6" stroke-width="4"/>
+<path d="M320 150 L400 150 L410 320 Q360 340 310 320 Z" fill="#cdbde6"/>
+<path d="M315 150 Q360 120 405 150" fill="none" stroke-width="5"/>
+<path d="M320 165 L400 165" stroke="#f6ead6" stroke-width="4"/>
+<path d="M445 140 L445 300" stroke="#5fae6e" stroke-width="5"/>
+<g fill="#8f6bc9" stroke-width="2"><ellipse cx="437" cy="150" rx="7" ry="10"/><ellipse cx="453" cy="166" rx="7" ry="10"/><ellipse cx="437" cy="182" rx="7" ry="10"/><ellipse cx="453" cy="198" rx="7" ry="10"/><ellipse cx="437" cy="214" rx="7" ry="10"/><ellipse cx="453" cy="230" rx="7" ry="10"/><ellipse cx="437" cy="246" rx="7" ry="10"/><ellipse cx="453" cy="262" rx="7" ry="10"/></g>
+</g></svg>

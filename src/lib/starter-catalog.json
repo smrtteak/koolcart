@@ -1,5 +1,329 @@
 [
   {
+    "id": "chai",
+    "title": "Masala Chai Blend, 100g",
+    "tagline": "Loose-leaf Assam black tea with cardamom, ginger and cinnamon.",
+    "description": "Strong Assam leaves blended with whole green cardamom, dried ginger, cinnamon bark and a few cloves. Simmer a spoonful with milk and sugar for proper chai, or brew it like regular tea. The tin holds about 40 cups and keeps the spices fresh.",
+    "price": 12,
+    "floorPrice": 10,
+    "stock": 16,
+    "category": "Pantry",
+    "tags": [
+      "tea",
+      "chai",
+      "spices",
+      "gift"
+    ],
+    "image": "/products/chai.svg",
+    "minutesAgo": 20
+  },
+  {
+    "id": "jam",
+    "title": "Strawberry Preserve, 220g",
+    "tagline": "Small-batch jam with big fruit pieces and less sugar.",
+    "description": "Cooked in small pans with whole strawberries, a squeeze of lemon and less sugar than shop jam, so it tastes of fruit first. Lovely on toast, in yogurt or swirled into a cake. Keep it in the fridge once opened and use within four weeks.",
+    "price": 9,
+    "floorPrice": 7.5,
+    "stock": 20,
+    "category": "Pantry",
+    "tags": [
+      "jam",
+      "strawberry",
+      "breakfast",
+      "under $10"
+    ],
+    "image": "/products/jam.svg",
+    "minutesAgo": 45
+  },
+  {
+    "id": "socks",
+    "title": "Wool Lounge Socks (2 Pairs)",
+    "tagline": "Thick, soft wool socks in slate blue and oat.",
+    "description": "Two pairs of chunky socks knitted from a warm wool blend, with a ribbed cuff that stays up without pinching. Made for cold floors, reading in bed and long weekends. One size fits most adult feet; wash cool and dry flat.",
+    "price": 18,
+    "floorPrice": 15,
+    "stock": 12,
+    "category": "Clothing",
+    "tags": [
+      "socks",
+      "wool",
+      "winter",
+      "cozy"
+    ],
+    "image": "/products/socks.svg",
+    "minutesAgo": 70
+  },
+  {
+    "id": "scarf",
+    "title": "Sage Knit Scarf",
+    "tagline": "A long, soft scarf with a fringe at each end.",
+    "description": "Knitted in a muted sage green from a soft acrylic-and-wool blend that doesn't itch. It's long enough to loop twice and finished with a short fringe. Warm without being bulky, and easy to wear with almost anything.",
+    "price": 36,
+    "floorPrice": 30,
+    "stock": 5,
+    "category": "Clothing",
+    "tags": [
+      "scarf",
+      "knitwear",
+      "winter",
+      "gift"
+    ],
+    "image": "/products/scarf.svg",
+    "minutesAgo": 120
+  },
+  {
+    "id": "wallet",
+    "title": "Leather Card Holder",
+    "tagline": "Slim vegetable-tanned leather with hand stitching.",
+    "description": "Cut from a single piece of vegetable-tanned leather and stitched by hand with waxed thread. It holds four to six cards plus a folded note, and slips into a front pocket. The leather darkens and softens beautifully with use.",
+    "price": 28,
+    "floorPrice": 23,
+    "stock": 8,
+    "category": "Accessories",
+    "tags": [
+      "leather",
+      "wallet",
+      "everyday",
+      "gift"
+    ],
+    "image": "/products/wallet.svg",
+    "minutesAgo": 180
+  },
+  {
+    "id": "keyring",
+    "title": "Brass Key Ring",
+    "tagline": "A solid brass loop and key that only gets better with age.",
+    "description": "A chunky solid-brass ring with a little brass key charm. It's heavy enough to find in a bag and develops a warm patina over time. Polish it with a soft cloth if you like it shiny. Fits four to six keys.",
+    "price": 10,
+    "floorPrice": 8,
+    "stock": 18,
+    "category": "Accessories",
+    "tags": [
+      "brass",
+      "keys",
+      "under $10",
+      "gift"
+    ],
+    "image": "/products/keyring.svg",
+    "minutesAgo": 240
+  },
+  {
+    "id": "bowl",
+    "title": "Blue Glaze Noodle Bowl",
+    "tagline": "A deep stoneware bowl for ramen, soups and big salads.",
+    "description": "Wheel-thrown stoneware in a deep ocean-blue glaze with a cream rim. It holds about 900 ml, enough for a full bowl of noodles with toppings. Comes with a pair of bamboo chopsticks. Dishwasher and microwave safe.",
+    "price": 26,
+    "floorPrice": 22,
+    "stock": 7,
+    "category": "Kitchen",
+    "tags": [
+      "ceramics",
+      "bowl",
+      "ramen",
+      "kitchen"
+    ],
+    "image": "/products/bowl.svg",
+    "minutesAgo": 300
+  },
+  {
+    "id": "soapdish",
+    "title": "Ceramic Soap Dish",
+    "tagline": "Ridged sage dish that keeps your soap bar dry.",
+    "description": "A small stoneware dish in a soft sage glaze with raised ridges, so water drains away and your soap lasts longer. It also works as a ring dish or catch-all by the sink. About 5 inches across.",
+    "price": 14,
+    "floorPrice": 11,
+    "stock": 10,
+    "category": "Bath",
+    "tags": [
+      "ceramics",
+      "bathroom",
+      "soap",
+      "small gift"
+    ],
+    "image": "/products/soapdish.svg",
+    "minutesAgo": 400
+  },
+  {
+    "id": "incense",
+    "title": "Clay Incense Holder + 20 Sticks",
+    "tagline": "A hand-shaped clay dish with sandalwood incense.",
+    "description": "A little boat-shaped holder pressed from terracotta clay, with a hole that fits standard sticks and catches the ash. It comes with 20 sandalwood sticks that burn for about 40 minutes each. A calm, warm scent that isn't overpowering.",
+    "price": 15,
+    "floorPrice": 12,
+    "stock": 14,
+    "category": "Home",
+    "tags": [
+      "incense",
+      "sandalwood",
+      "calm",
+      "clay"
+    ],
+    "image": "/products/incense.svg",
+    "minutesAgo": 520
+  },
+  {
+    "id": "terrarium",
+    "title": "Mini Glass Terrarium Kit",
+    "tagline": "Everything to build a tiny garden in a jar.",
+    "description": "A small glass globe with a wooden lid, plus pebbles, activated charcoal, potting mix, moss and a step-by-step card. Add a small cutting or succulent and it more or less looks after itself. It takes about 15 minutes to build. Plant not included.",
+    "price": 34,
+    "floorPrice": 28,
+    "stock": 4,
+    "category": "Home",
+    "tags": [
+      "plants",
+      "terrarium",
+      "DIY",
+      "gift"
+    ],
+    "image": "/products/terrarium.svg",
+    "minutesAgo": 650
+  },
+  {
+    "id": "sketchbook",
+    "title": "A5 Sketchbook, 120 Pages",
+    "tagline": "Thick cream paper that takes pencil, ink and light watercolour.",
+    "description": "Section-sewn so it lies flat, with 120 pages of 150gsm cream paper and a sturdy charcoal cover. Pencil, fine-liner and light washes all behave nicely. An elastic band keeps it closed in your bag. A pencil isn't included.",
+    "price": 16,
+    "floorPrice": 13,
+    "stock": 15,
+    "category": "Stationery",
+    "tags": [
+      "sketchbook",
+      "drawing",
+      "paper",
+      "art"
+    ],
+    "image": "/products/sketchbook.svg",
+    "minutesAgo": 800
+  },
+  {
+    "id": "embroidery",
+    "title": "Beginner Embroidery Kit",
+    "tagline": "A wooden hoop, threads and a simple floral pattern to stitch.",
+    "description": "Includes a 6-inch wooden hoop, pre-printed cotton fabric, six colours of embroidery floss, two needles and an illustrated guide to four basic stitches. A relaxing evening project that turns into something you can hang on the wall.",
+    "price": 22,
+    "floorPrice": 18,
+    "stock": 9,
+    "category": "Toys",
+    "tags": [
+      "embroidery",
+      "craft",
+      "DIY",
+      "beginner"
+    ],
+    "image": "/products/embroidery.svg",
+    "minutesAgo": 950
+  },
+  {
+    "id": "wraps",
+    "title": "Beeswax Food Wraps (Set of 3)",
+    "tagline": "Reusable wraps that replace cling film.",
+    "description": "Cotton squares coated in beeswax, tree resin and jojoba oil, in small, medium and large. Warm them with your hands to mould them over bowls, cheese or half a lemon. Rinse in cool soapy water and they last about a year.",
+    "price": 15,
+    "floorPrice": 12,
+    "stock": 17,
+    "category": "Kitchen",
+    "tags": [
+      "eco",
+      "beeswax",
+      "kitchen",
+      "reusable"
+    ],
+    "image": "/products/wraps.svg",
+    "minutesAgo": 1100
+  },
+  {
+    "id": "comb",
+    "title": "Wooden Wide-Tooth Comb",
+    "tagline": "Smooth hand-sanded sandalwood, gentle on curls.",
+    "description": "Cut from sandalwood and sanded smooth by hand, with wide teeth that glide through thick or curly hair without snagging. It doesn't build up static like plastic and has a faint natural scent. About 7 inches long.",
+    "price": 9,
+    "floorPrice": 7,
+    "stock": 22,
+    "category": "Bath",
+    "tags": [
+      "hair",
+      "wooden",
+      "under $10",
+      "self-care"
+    ],
+    "image": "/products/comb.svg",
+    "minutesAgo": 1300
+  },
+  {
+    "id": "napkins",
+    "title": "Linen Napkins (Set of 4)",
+    "tagline": "Stonewashed linen with a terracotta stripe.",
+    "description": "Four generous napkins cut from stonewashed linen in natural oat, each with a thin terracotta stripe near the hem. They get softer with every wash and look relaxed even when crumpled. Finished with mitred corners.",
+    "price": 24,
+    "floorPrice": 20,
+    "stock": 8,
+    "category": "Kitchen",
+    "tags": [
+      "linen",
+      "table",
+      "dinner",
+      "set"
+    ],
+    "image": "/products/napkins.svg",
+    "minutesAgo": 1500
+  },
+  {
+    "id": "phonestand",
+    "title": "Wooden Phone Stand",
+    "tagline": "A solid oak stand for video calls and recipes.",
+    "description": "Two pieces of oiled oak that slot together, holding a phone or small tablet at a comfortable angle, in portrait or landscape. A gap at the bottom lets the charging cable through. It packs flat for travel.",
+    "price": 19,
+    "floorPrice": 16,
+    "stock": 11,
+    "category": "Home",
+    "tags": [
+      "desk",
+      "oak",
+      "phone",
+      "work from home"
+    ],
+    "image": "/products/phonestand.svg",
+    "minutesAgo": 1700
+  },
+  {
+    "id": "sachet",
+    "title": "Lavender Sachets (Set of 3)",
+    "tagline": "Cotton pouches filled with dried French lavender.",
+    "description": "Three drawstring cotton pouches filled with dried lavender buds. Tuck them in drawers, wardrobes or under a pillow to keep things smelling fresh. Give them a gentle squeeze every few weeks to wake up the scent.",
+    "price": 12,
+    "floorPrice": 10,
+    "stock": 19,
+    "category": "Home",
+    "tags": [
+      "lavender",
+      "scent",
+      "drawer",
+      "gift"
+    ],
+    "image": "/products/sachet.svg",
+    "minutesAgo": 1900
+  },
+  {
+    "id": "origami",
+    "title": "Origami Paper Kit",
+    "tagline": "200 sheets in 20 colours, plus a folding guide.",
+    "description": "200 squares of crisp origami paper in 20 colours, with a fold-out guide to 12 classic models: crane, fox, boat, frog and more. Great for a rainy afternoon, a classroom or anyone who likes busy hands. Suitable from about age 7.",
+    "price": 11,
+    "floorPrice": 9,
+    "stock": 13,
+    "category": "Toys",
+    "tags": [
+      "origami",
+      "paper",
+      "kids",
+      "craft"
+    ],
+    "image": "/products/origami.svg",
+    "minutesAgo": 2100
+  },
+  {
     "id": "mug",
     "title": "Sage Speckle Mug",
     "tagline": "Wheel-thrown, 12 oz, with a thumb-friendly handle.",

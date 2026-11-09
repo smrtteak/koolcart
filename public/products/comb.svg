@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+<defs><filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .25  0 0 0 0 .2  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter></defs>
+<rect width="600" height="450" fill="#efe6d8"/><rect width="600" height="450" fill="#efe6d8" filter="url(#paper)"/>
+<circle cx="510" cy="80" r="46" fill="#f2b83a" opacity=".45"/><circle cx="80" cy="380" r="30" fill="#f2b83a" opacity=".35"/>
+<ellipse cx="300" cy="378" rx="170" ry="20" fill="#1f1b16" opacity=".12"/>
+<g stroke="#1f1b16" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+
+<path d="M150 170 Q150 140 180 140 L420 140 Q450 140 450 170 L450 200 L150 200 Z" fill="#a9744f"/>
+<g fill="#a9744f"><rect x="160" y="198" width="12" height="120" rx="6"/><rect x="180" y="198" width="12" height="100" rx="6"/><rect x="200" y="198" width="12" height="120" rx="6"/><rect x="220" y="198" width="12" height="100" rx="6"/><rect x="240" y="198" width="12" height="120" rx="6"/><rect x="260" y="198" width="12" height="100" rx="6"/><rect x="280" y="198" width="12" height="120" rx="6"/><rect x="300" y="198" width="12" height="100" rx="6"/><rect x="320" y="198" width="12" height="120" rx="6"/><rect x="340" y="198" width="12" height="100" rx="6"/><rect x="360" y="198" width="12" height="120" rx="6"/><rect x="380" y="198" width="12" height="100" rx="6"/><rect x="400" y="198" width="12" height="120" rx="6"/><rect x="420" y="198" width="12" height="100" rx="6"/><rect x="440" y="198" width="12" height="120" rx="6"/></g>
+<path d="M180 160 L420 160" stroke-width="2" opacity=".5"/>
+</g></svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+<defs><filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .25  0 0 0 0 .2  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter></defs>
+<rect width="600" height="450" fill="#ede7dd"/><rect width="600" height="450" fill="#ede7dd" filter="url(#paper)"/>
+<circle cx="510" cy="80" r="46" fill="#f2b83a" opacity=".45"/><circle cx="80" cy="380" r="30" fill="#f2b83a" opacity=".35"/>
+<ellipse cx="300" cy="378" rx="170" ry="20" fill="#1f1b16" opacity=".12"/>
+<g stroke="#1f1b16" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+
+<rect x="180" y="100" width="240" height="280" rx="12" fill="#2f2b28"/>
+<path d="M200 100 L200 380" stroke="#f6ead6" stroke-width="3" stroke-dasharray="4 10"/>
+<rect x="240" y="150" width="140" height="70" rx="6" fill="#f6ead6"/>
+<text x="310" y="195" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#1f1b16" stroke="none">sketches</text>
+<path d="M430 110 L470 330" stroke="#e8b44c" stroke-width="14"/>
+<path d="M466 312 L478 352 L462 338 Z" fill="#f6ead6" stroke-width="3"/>
+<path d="M240 280 Q280 250 310 285 T380 270" fill="none" stroke="#f6ead6" stroke-width="4"/>
+</g></svg>

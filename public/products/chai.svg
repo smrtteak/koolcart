@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+<defs><filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .25  0 0 0 0 .2  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter></defs>
+<rect width="600" height="450" fill="#f2e3d0"/><rect width="600" height="450" fill="#f2e3d0" filter="url(#paper)"/>
+<circle cx="510" cy="80" r="46" fill="#f2b83a" opacity=".45"/><circle cx="80" cy="380" r="30" fill="#f2b83a" opacity=".35"/>
+<ellipse cx="300" cy="378" rx="170" ry="20" fill="#1f1b16" opacity=".12"/>
+<g stroke="#1f1b16" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+
+<rect x="215" y="120" width="170" height="245" rx="14" fill="#b5523b"/>
+<rect x="205" y="105" width="190" height="34" rx="10" fill="#8f3e2c"/>
+<rect x="235" y="190" width="130" height="110" rx="8" fill="#f6ead6"/>
+<text x="300" y="238" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="28" fill="#1f1b16" stroke="none">masala</text><text x="300" y="275" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="32" fill="#1f1b16" stroke="none">chai</text>
+<path d="M240 330 Q260 315 280 330 T320 330 T360 330" fill="none" stroke="#f6ead6" stroke-width="4"/>
+<g fill="#6b3a22" stroke-width="3"><ellipse cx="160" cy="355" rx="14" ry="8"/><ellipse cx="445" cy="350" rx="14" ry="8" transform="rotate(30 445 350)"/></g>
+<path d="M420 120 l14 0 M427 113 l0 14 M440 160 l10 0 M445 155 l0 10" stroke-width="3"/>
+</g></svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+<defs><filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .25  0 0 0 0 .2  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter></defs>
+<rect width="600" height="450" fill="#fbe1e1"/><rect width="600" height="450" fill="#fbe1e1" filter="url(#paper)"/>
+<circle cx="510" cy="80" r="46" fill="#ffffff" opacity=".45"/><circle cx="80" cy="380" r="30" fill="#ffffff" opacity=".35"/>
+<ellipse cx="300" cy="378" rx="170" ry="20" fill="#1f1b16" opacity=".12"/>
+<g stroke="#1f1b16" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+
+<path d="M220 170 L380 170 L392 350 Q392 372 370 372 L230 372 Q208 372 208 350 Z" fill="#c0283a"/>
+<rect x="212" y="128" width="176" height="46" rx="8" fill="#f6ead6"/>
+<path d="M212 128 L230 110 L370 110 L388 128" fill="#f2c94c" stroke-width="4"/>
+<path d="M226 122 l8 -8 M250 122 l8 -8 M274 122 l8 -8 M298 122 l8 -8 M322 122 l8 -8 M346 122 l8 -8 M370 122 l6 -6" stroke-width="3"/>
+<rect x="240" y="225" width="120" height="80" rx="8" fill="#fbf8f2"/>
+<text x="300" y="275" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="22" fill="#1f1b16" stroke="none">strawberry</text>
+<path d="M440 300 Q470 300 470 330 Q470 365 440 380 Q410 365 410 330 Q410 300 440 300 Z" fill="#e4572e"/>
+<path d="M425 300 L440 285 L455 300" fill="#5fae6e" stroke-width="4"/>
+<circle cx="432" cy="325" r="2" fill="#f6ead6" stroke="none"/><circle cx="448" cy="340" r="2" fill="#f6ead6" stroke="none"/>
+</g></svg>
