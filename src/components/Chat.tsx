@@ -47,8 +47,8 @@ function describe(step: Step): { label: string; paypal?: boolean } {
       } catch {}
       return { label: `asked the owner about ${money(i.offeredUnitPrice)}${verdict}` };
     }
-    case "create_checkout":
-      return { label: step.error ? "couldn't open checkout" : "opened a checkout", paypal: true };
+    case "add_to_cart":
+      return { label: step.error ? "couldn't add it to your cart" : "put it in your cart", paypal: true };
     case "check_order_status":
       return { label: "checked the order", paypal: true };
     case "get_shop_overview":

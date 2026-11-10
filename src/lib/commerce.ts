@@ -3,9 +3,24 @@
 import * as koolupi from "./koolupi";
 import * as paypal from "./paypal";
 import { paymentProvider } from "./payments";
-import { HOUSE_SELLER, mutate, read, sellerKey, sellerOf, type Listing, type Order } from "./store";
+import { HOUSE_SELLER, mutate, read, sellerKey, sellerOf, type Deal, type Listing, type Order } from "./store";
 
-export type CartLine = { listingId: string; quantity: number; unitPrice?: number };
+/** A cart line. A price below the list price needs `conversationId`: the shop chat where that price was agreed. */
+export type CartLine = { listingId: string; quantity: number; unitPrice?: number; conversationId?: string };
+
+// The shop's buyer AI records every price it agrees to (see Deal in store.ts). A haggled price is honoured only
+// with a matching deal from the same chat, made within the last two hours.
+export const DEAL_TTL_MS = 2 * 60 * 60 * 1000;
+const samePrice = (a: number, b: number) => Math.abs(a - b) < 0.005;
+export function hasDeal(deals: Deal[], conversationId: string | undefined, listingId: string, price: number) {
+  return deals.some(
+    (d) =>
+      d.conversationId === conversationId &&
+      d.listingId === listingId &&
+      samePrice(d.agreed, price) &&
+      Date.now() - new Date(d.at).getTime() < DEAL_TTL_MS,
+  );
+}
 
 export async function startCheckout(lines: CartLine[]): Promise<Order> {
   const db = await read();
@@ -19,6 +34,11 @@ export async function startCheckout(lines: CartLine[]): Promise<Order> {
       throw new Error(`Price ${unitPrice} for "${listing.title}" is below what the seller accepts`);
     }
     if (unitPrice > listing.price) throw new Error("Price cannot exceed the list price");
+    if (unitPrice < listing.price && !hasDeal(db.deals ?? [], line.conversationId, listing.id, unitPrice)) {
+      throw new Error(
+        `The $${unitPrice.toFixed(2)} price on "${listing.title}" is no longer on offer (deals last 2 hours). Ask the shopkeeper again, or remove it and add it at the list price.`,
+      );
+    }
     return { listing, unitPrice, quantity: line.quantity };
   });
 

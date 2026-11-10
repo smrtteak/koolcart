@@ -23,8 +23,7 @@ type Product = {
 
 type Sale = { title: string; total: number; negotiated: boolean; at: string };
 type Shop = { shopName: string; listings: Product[]; recent: Sale[]; now: number };
-type Checkout = { orderId: string; total: number; lines: { title: string; unitPrice: number; quantity: number }[] };
-type Paid = { id: string; total: number; payerName?: string };
+type CartAdd = { listingId: string; title: string; unitPrice: number; listPrice: number; quantity: number };
 
 const NEW_MS = 24 * 60 * 60 * 1000;
 const usd = (n: number) => `$${n.toFixed(2)}`;
@@ -90,13 +89,28 @@ export default function Storefront() {
   };
 
   async function send(history: Turn[]) {
-    const res = await postJSON<{ reply: string; checkouts: Checkout[]; steps: Step[]; productIds: string[] }>(
+    const res = await postJSON<{ reply: string; cartAdds: CartAdd[]; steps: Step[]; productIds: string[] }>(
       "/api/shop/chat",
       { history: wire(history), conversationId: (conversationId.current ??= crypto.randomUUID()) },
     );
+    // Whatever the shopkeeper agreed to sell goes straight into the shop's one cart, at the agreed price.
+    for (const a of res.cartAdds) {
+      const p = byId.get(a.listingId);
+      cart.add(
+        {
+          id: a.listingId,
+          title: a.title,
+          price: a.unitPrice,
+          image: p?.image,
+          stock: p?.stock ?? a.quantity,
+          ...(a.unitPrice < a.listPrice && { listPrice: a.listPrice, conversationId: conversationId.current! }),
+        },
+        a.quantity,
+      );
+    }
     const mentioned = res.productIds.map((id) => byId.get(id)).filter((p): p is Product => !!p);
     const offers = res.steps.filter((s) => s.tool === "evaluate_offer" && !s.error);
-    const hasExtra = res.checkouts.length || mentioned.length || offers.length;
+    const hasExtra = res.cartAdds.length || mentioned.length || offers.length;
     return {
       text: res.reply,
       steps: res.steps,
@@ -110,16 +124,14 @@ export default function Storefront() {
             const p = byId.get(resolvedId);
             return p ? <HaggleMeter key={i} p={p} step={s} /> : null;
           })}
-          {!res.checkouts.length && mentioned.length > 0 && (
+          {!res.cartAdds.length && mentioned.length > 0 && (
             <div className="scrollbar-none -mr-5 flex gap-3 overflow-x-auto pb-2 pr-5 pt-1">
               {mentioned.map((p) => (
                 <MiniProduct key={p.id} p={p} onOpen={() => setOpen(p)} />
               ))}
             </div>
           )}
-          {res.checkouts.map((c) => (
-            <Receipt key={c.orderId} c={c} onPaid={onPaid} />
-          ))}
+          {res.cartAdds.length > 0 && <CartSlip lines={res.cartAdds} onOpenCart={() => cart.setOpen(true)} />}
         </div>
       ) : undefined,
     };
@@ -516,52 +528,38 @@ function MiniProduct({ p, onOpen }: { p: Product; onOpen: () => void }) {
   );
 }
 
-/** Checkout card styled as a paper till receipt. */
-function Receipt({ c, onPaid }: { c: Checkout; onPaid: () => void }) {
-  const [paid, setPaid] = useState<Paid>();
+/** What the shopkeeper just put in the cart, styled as a paper till slip. Paying happens in the cart. */
+function CartSlip({ lines, onOpenCart }: { lines: CartAdd[]; onOpenCart: () => void }) {
+  const total = lines.reduce((s, l) => s + l.unitPrice * l.quantity, 0);
   return (
     <div className="card relative rounded-xl bg-paper font-mono text-[12px]">
       <div className="p-4 pb-3">
         <div className="text-center">
           <div className="font-display text-2xl not-italic">Koolcart</div>
-          <div className="text-[10px] uppercase tracking-[.2em] text-muted">order {c.orderId}</div>
+          <div className="text-[10px] uppercase tracking-[.2em] text-muted">added to your cart</div>
         </div>
         <div className="perforated my-3" />
-        {c.lines.map((l, i) => (
+        {lines.map((l, i) => (
           <div key={i} className="flex justify-between gap-3">
             <span className="truncate">
               {l.quantity} × {l.title}
             </span>
-            <span className="tabular-nums">{usd(l.unitPrice * l.quantity)}</span>
+            <span className="shrink-0 tabular-nums">
+              {l.unitPrice < l.listPrice && <s className="mr-1.5 opacity-50">{usd(l.listPrice * l.quantity)}</s>}
+              {usd(l.unitPrice * l.quantity)}
+            </span>
           </div>
         ))}
         <div className="perforated my-3" />
         <div className="flex items-baseline justify-between">
           <span className="uppercase tracking-widest">Total</span>
-          <span className="font-display text-3xl tabular-nums">{usd(c.total)}</span>
+          <span className="font-display text-3xl tabular-nums">{usd(total)}</span>
         </div>
       </div>
       <div className="border-t border-dashed border-line p-3 font-sans">
-        {paid ? (
-          <div className="space-y-1 text-center">
-            <div className="font-hand text-2xl text-ok">paid, thank you! ✓</div>
-            <Link
-              href={`/returns?order=${c.orderId}`}
-              className="text-xs text-muted underline decoration-dotted underline-offset-4"
-            >
-              Need to return or swap it?
-            </Link>
-          </div>
-        ) : (
-          <Checkout
-            amount={c.total}
-            orderId={c.orderId}
-            onPaid={(o) => {
-              setPaid(o);
-              onPaid();
-            }}
-          />
-        )}
+        <button onClick={onOpenCart} className="btn-ink h-11 w-full rounded-full text-sm font-semibold">
+          Open cart to pay
+        </button>
       </div>
     </div>
   );

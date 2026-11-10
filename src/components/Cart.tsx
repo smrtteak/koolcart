@@ -5,7 +5,17 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { celebrate } from "./celebrate";
 import { Checkout } from "./Checkout";
 
-export type CartItem = { id: string; title: string; price: number; image?: string; qty: number; stock: number };
+export type CartItem = {
+  id: string;
+  title: string;
+  price: number;
+  image?: string;
+  qty: number;
+  stock: number;
+  /** Set when `price` is a haggled price: the list price, and the shop chat that agreed the deal. */
+  listPrice?: number;
+  conversationId?: string;
+};
 
 type CartApi = {
   items: CartItem[];
@@ -58,7 +68,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setItems((prev) => {
         const existing = prev.find((i) => i.id === item.id);
         if (existing) {
-          return prev.map((i) => (i.id === item.id ? { ...i, ...item, qty: Math.min(item.stock, i.qty + qty) } : i));
+          return prev.map((i) => {
+            if (i.id !== item.id) return i;
+            // A haggled deal sets the price and the quantity agreed in the chat; a plain add keeps any deal.
+            if (item.conversationId) return { ...i, ...item, qty: Math.min(item.stock, qty) };
+            return { ...i, stock: item.stock, qty: Math.min(item.stock, i.qty + qty) };
+          });
         }
         return [...prev, { ...item, qty: Math.min(item.stock, qty) }];
       });
@@ -170,7 +185,16 @@ function CartDrawer() {
               </span>
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium">{i.title}</div>
-                <div className="text-sm text-muted">{usd(i.price)} each</div>
+                <div className="text-sm text-muted">
+                  {usd(i.price)} each
+                  {i.listPrice && i.listPrice > i.price && (
+                    <>
+                      {" "}
+                      <s className="opacity-60">{usd(i.listPrice)}</s>{" "}
+                      <span className="font-hand text-base text-brand">haggled</span>
+                    </>
+                  )}
+                </div>
                 <div className="mt-2 flex items-center gap-1">
                   <QtyButton label="−" onClick={() => setQty(i.id, i.qty - 1)} />
                   <span className="w-8 text-center text-sm tabular-nums">{i.qty}</span>
@@ -191,14 +215,20 @@ function CartDrawer() {
               <span className="text-sm text-muted">Subtotal</span>
               <span className="font-display text-4xl tabular-nums">{usd(subtotal)}</span>
             </div>
-            <p className="text-xs text-muted">Free returns within 30 days. Want a better price? Ask the shopkeeper first.</p>
+            <p className="text-xs text-muted">Free returns within 30 days. Want a better price? Haggle with the shopkeeper and the deal lands here.</p>
             <Checkout
               amount={subtotal}
               createOrder={async () => {
                 const res = await fetch("/api/checkout", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ items: items.map((i) => ({ listingId: i.id, quantity: i.qty })) }),
+                  body: JSON.stringify({
+                    items: items.map((i) => ({
+                      listingId: i.id,
+                      quantity: i.qty,
+                      ...(i.conversationId && { unitPrice: i.price, conversationId: i.conversationId }),
+                    })),
+                  }),
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error ?? "Checkout failed");

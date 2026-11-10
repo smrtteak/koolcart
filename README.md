@@ -47,7 +47,7 @@ Shopper ──chat──▶ Shopper agent (LLM + tools) ──▶ order (KC-…)
 |---|---|---|
 | OAuth 2.0 client credentials | `src/lib/paypal.ts` | Server-side access token, cached until expiry |
 | **Catalog Products API** (`/v1/catalogs/products`) | seller agent `create_listing` / `update_listing` | Every AI-written listing is registered as a PayPal product |
-| **Orders v2** create (`/v2/checkout/orders`) | shopper agent `create_checkout`, cart, "Buy now" | Itemised order with SKU, unit prices, quantities and an `item_total` breakdown, at list or negotiated prices |
+| **Orders v2** create (`/v2/checkout/orders`) | cart and "Buy now" (haggled prices come from the shopper agent's `add_to_cart`) | Itemised order with SKU, unit prices, quantities and an `item_total` breakdown, at list or negotiated prices |
 | **Orders v2** capture & get | `/api/checkout/[orderId]/capture`, `check_order_status` | Captures payment after buyer approval (idempotent via `PayPal-Request-Id`), records payer and capture id, decrements stock |
 | **Payments v2** refunds (`/v2/payments/captures/{id}/refund`) | seller agent `refund_order`, order Refund button, approved returns | Full or partial refunds from a chat message, one click, or an approved return request |
 | **PayPal JS SDK** Smart Buttons (`@paypal/react-paypal-js`) | `src/components/PayPalCheckout.tsx` | Renders checkout inside the assistant's chat bubble and on product pages |
@@ -70,7 +70,7 @@ The agents:
 
 **The AI never controls money on its own:**
 - The seller's floor price is never shown to the shopper agent. Offers go to a deterministic server-side policy (`evaluate_offer`) that returns accept / counter / decline.
-- `create_checkout` only accepts a discounted price that the policy agreed to within the last hour. Prompt-injecting the assistant into "just charge me $1" fails.
+- A haggled price reaches the cart only through `add_to_cart`, and checkout honours it only if the same chat agreed it in the last two hours. Prompt-injecting the assistant into "just charge me $1" fails.
 - `src/lib/commerce.ts` checks stock, list price and floor price again before any PayPal order is created.
 - Refunds are capped at the amount still refundable.
 - Tool arguments are validated against their Zod schemas before running, on every provider.
