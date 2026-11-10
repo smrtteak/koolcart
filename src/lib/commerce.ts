@@ -1,6 +1,8 @@
 // Business rules shared by the AI agents and the plain REST routes.
 // Price floors and stock are enforced here, server-side, never by the model.
+import * as koolupi from "./koolupi";
 import * as paypal from "./paypal";
+import { paymentProvider } from "./payments";
 import { HOUSE_SELLER, mutate, read, sellerKey, sellerOf, type Listing, type Order } from "./store";
 
 export type CartLine = { listingId: string; quantity: number; unitPrice?: number };
@@ -20,18 +22,19 @@ export async function startCheckout(lines: CartLine[]): Promise<Order> {
     return { listing, unitPrice, quantity: line.quantity };
   });
 
-  const ppOrder = await paypal.createOrder(
-    resolved.map((r) => ({
-      sku: r.listing.id,
-      name: r.listing.title,
-      unitPrice: r.unitPrice,
-      quantity: r.quantity,
-    })),
-    { description: `${db.shopName} order` },
-  );
+  // KoolUPI orders are created here and paid in the UPI sheet; PayPal orders are created on PayPal.
+  const orderId =
+    paymentProvider() === "paypal"
+      ? (
+          await paypal.createOrder(
+            resolved.map((r) => ({ sku: r.listing.id, name: r.listing.title, unitPrice: r.unitPrice, quantity: r.quantity })),
+            { description: `${db.shopName} order` },
+          )
+        ).id
+      : koolupi.newOrderId();
 
   const order: Order = {
-    id: ppOrder.id,
+    id: orderId,
     lines: resolved.map((r) => ({
       listingId: r.listing.id,
       title: r.listing.title,
@@ -50,24 +53,51 @@ export async function startCheckout(lines: CartLine[]): Promise<Order> {
   return order;
 }
 
-export async function completeCheckout(orderId: string): Promise<Order> {
-  const captured = await paypal.captureOrder(orderId);
-  const capture = captured.purchase_units[0]?.payments?.captures?.[0];
+/** Records a successful payment on an order and takes the items out of stock. */
+function markPaid(orderId: string, paid: Pick<Order, "captureId" | "payerName" | "payerEmail" | "payment">) {
   return mutate((db) => {
     const order = db.orders.find((o) => o.id === orderId);
     if (!order) throw new Error("Order not found");
     if (order.status !== "CREATED") return order;
-    order.status = "COMPLETED";
-    order.captureId = capture?.id;
-    order.capturedAt = new Date().toISOString();
-    order.payerEmail = captured.payer?.email_address;
-    order.payerName = [captured.payer?.name?.given_name, captured.payer?.name?.surname].filter(Boolean).join(" ");
+    Object.assign(order, paid, { status: "COMPLETED", capturedAt: new Date().toISOString() });
     for (const line of order.lines) {
       const listing = db.listings.find((l) => l.id === line.listingId);
       if (listing) listing.stock = Math.max(0, listing.stock - line.quantity);
     }
     return order;
   });
+}
+
+/** PayPal: capture an order the buyer approved in PayPal's window. */
+export async function completeCheckout(orderId: string): Promise<Order> {
+  const captured = await paypal.captureOrder(orderId);
+  const capture = captured.purchase_units[0]?.payments?.captures?.[0];
+  return markPaid(orderId, {
+    captureId: capture?.id,
+    payerEmail: captured.payer?.email_address,
+    payerName: [captured.payer?.name?.given_name, captured.payer?.name?.surname].filter(Boolean).join(" "),
+    payment: { gateway: "paypal" },
+  });
+}
+
+/** KoolUPI: pay an order with a 4-digit PIN (any digits; it's a model). */
+export async function payWithUpi(orderId: string, pin: string, upiId?: string): Promise<{ order: Order }> {
+  const db = await read();
+  const order = db.orders.find((o) => o.id === orderId);
+  if (!order) throw new Error("Order not found");
+  if (order.status !== "CREATED") return { order };
+  // Stock may have sold out since the order was opened.
+  for (const line of order.lines) {
+    const listing = db.listings.find((l) => l.id === line.listingId);
+    if (!listing || listing.stock < line.quantity) throw new Error(`Sorry, "${line.title}" just sold out.`);
+  }
+  const payment = koolupi.pay(pin, upiId);
+  const paid = await markPaid(orderId, {
+    captureId: payment.paymentId,
+    payerName: payment.upiId.split("@")[0],
+    payment: { gateway: "koolupi", upiId: payment.upiId, utr: payment.utr },
+  });
+  return { order: paid };
 }
 
 export async function refundOrder(orderId: string, amount?: number, reason?: string) {
@@ -79,7 +109,10 @@ export async function refundOrder(orderId: string, amount?: number, reason?: str
   if (amount !== undefined && amount > remaining + 0.001) {
     throw new Error(`Can refund at most ${remaining.toFixed(2)}`);
   }
-  const refund = await paypal.refundCapture(order.captureId, amount, reason);
+  const refund =
+    order.payment?.gateway === "koolupi" || order.captureId.startsWith("upi_")
+      ? koolupi.refund(order.captureId)
+      : await paypal.refundCapture(order.captureId, amount, reason);
   return mutate((db) => {
     const o = db.orders.find((x) => x.id === orderId)!;
     o.refundedAmount = Math.round(((o.refundedAmount ?? 0) + (amount ?? remaining)) * 100) / 100;
@@ -118,7 +151,7 @@ export function sellerView(order: Order, listings: Listing[], name: string): Ord
   return { ...order, lines, total: share, refundedAmount: refunded || undefined, status };
 }
 
-/** Refunds (part of) one seller's share of an order through PayPal. Defaults to everything still refundable. */
+/** Refunds (part of) one seller's share of an order. Defaults to everything still refundable. */
 export async function refundForSeller(orderId: string, name: string, amount?: number, reason?: string) {
   const db = await read();
   const order = db.orders.find((o) => o.id === orderId);

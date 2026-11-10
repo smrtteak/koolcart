@@ -1,39 +1,47 @@
 # Koolcart
 
-A small online shop where you can chat with the shopkeeper, make an offer, and pay with PayPal.
+A small online shop where you can chat with the shopkeeper, make an offer, and pay in seconds with KoolUPI.
 
-**Live demo: https://koolcart.vercel.app** (PayPal sandbox, no real money)
+**Live demo: https://koolcart.vercel.app** (demo payments, no real money)
 
-**Sellers describe a product in plain words (and a photo). An AI agent writes the listing, prices it, registers it in the PayPal catalog and puts it on a storefront with PayPal checkout. Shoppers get their own AI assistant that answers questions, haggles within limits the seller set, and opens a PayPal checkout right in the chat.**
-
-Built for *Build What's Next with PayPal and AI*.
+**Sellers describe a product in plain words (and a photo). An AI agent writes the listing, prices it and puts it on a shared storefront. Shoppers get their own AI assistant that answers questions, haggles within limits the seller set, and opens a checkout right in the chat.**
 
 | Seller side (`/seller`) | Shopper side (`/`) |
 |---|---|
 | Chat + 📷 photo → listing, price, floor price, stock | Product grid + AI shop assistant |
 | "How are sales?" → live numbers from orders | "Can you do $22?" → server-side haggling policy |
-| "Refund the last order" → PayPal refund | "Check me out" → PayPal order + Smart Buttons inline |
+| "Refund the last order" → refund to the buyer | "Check me out" → order + pay button inline |
 | One-click refunds, stock +/−, "✨ Improve with AI" | Search, category filters, "🤝 Make offer" price slider |
 | New orders flash in live; animated revenue stats | "💬 Ask AI" on any product, receipt + confetti on payment |
-| Returns tab: approve (PayPal refund) or decline | **Cart** with one PayPal order for every item |
+| Returns tab: approve (refund) or decline | **Cart** with one order for every item |
 | | **Returns & exchanges** form (`/returns`) with common reasons |
 
-Both chats show a live **activity trail** of what the agent did, e.g. *🤝 Checked the shop's pricing policy for $7.00 → accepted $7.00*, then *💳 Created PayPal order (Orders v2)*. Viewers can see exactly when AI reasoning hands off to PayPal.
+## Payments: KoolUPI
+
+KoolUPI is Koolcart's built-in demo payment method, modelled on UPI apps. A shopper taps **Pay with KoolUPI**, a payment sheet slides up showing the amount, and they enter **any 4-digit PIN**. After a short "talking to the bank" pause the order is paid, with a UTR reference on the receipt. No account, card or real money is involved, and the PIN is never stored.
+
+- `src/lib/koolupi.ts`: the gateway (PIN check, payment id, UTR, refunds)
+- `src/components/KoolUpi.tsx`: the pay button and PIN sheet
+- `POST /api/checkout/[orderId]/pay` with `{ "pin": "1234", "upiId": "you@koolupi" }` pays an order
+
+Refunds from the seller studio and approved returns work the same way as before.
+
+PayPal is still supported: set `PAYMENT_PROVIDER=paypal` plus `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` to switch checkout back to PayPal Smart Buttons (see below).
 
 ## How it works
 
 ```
-Seller ──chat/photo──▶ Seller agent (LLM + tools) ──▶    PayPal Catalog Products API
-                                   │                   ──▶ PayPal Payments API (refunds)
-                                   ▼
-                              Listings store
-                                   ▲
-Shopper ──chat──▶ Shopper agent (LLM + tools) ──▶    PayPal Orders v2 (create)
+Seller ──chat/photo──▶ Seller agent (LLM + tools) ──▶ listings, stock, refunds
                                    │
-                     PayPal Smart Buttons in chat ──▶ PayPal Orders v2 (capture) ──▶ stock & sales update
+                                   ▼
+                              Listings store (Postgres or JSON)
+                                   ▲
+Shopper ──chat──▶ Shopper agent (LLM + tools) ──▶ order (KC-…)
+                                   │
+                     KoolUPI sheet in chat ──▶ /api/checkout/[id]/pay ──▶ stock & sales update
 ```
 
-### PayPal integration
+### Optional: PayPal mode (`PAYMENT_PROVIDER=paypal`)
 
 | PayPal capability | Where | What it does |
 |---|---|---|
@@ -70,7 +78,7 @@ The agents:
 
 ## Run it locally
 
-Requirements: Node 20+, a [PayPal Developer](https://developer.paypal.com/) account (free sandbox), and one AI option: a free [Gemini API key](https://aistudio.google.com/apikey), [Ollama](https://ollama.com) (`ollama signin` once), or a Claude API key.
+Requirements: Node 20+ and one AI option (a PayPal sandbox account only if you use PayPal mode): a free [Gemini API key](https://aistudio.google.com/apikey), [Ollama](https://ollama.com) (`ollama signin` once), or a Claude API key.
 
 1. **Create PayPal sandbox credentials.** Go to developer.paypal.com → *Apps & Credentials* → *Sandbox* → *Create App*, then copy the **Client ID** and **Secret**. Under *Testing Tools → Sandbox Accounts* you'll find a sandbox **personal** account; use it to pay at checkout.
 2. **Install and configure**
@@ -84,16 +92,16 @@ Requirements: Node 20+, a [PayPal Developer](https://developer.paypal.com/) acco
 
 To reset the shop to the starter catalog, stop the server and delete `data/store.json`. It's recreated from `src/lib/starter-catalog.json` on the next request.
 
-### Demo mode (no PayPal keys yet)
+### PayPal demo mode (PayPal mode without keys)
 
 If `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` are not set, the app runs in **PayPal demo mode**. The header shows an orange "PayPal demo mode · simulated" badge. `src/lib/paypal.ts` returns locally simulated responses with the same shape as the real Catalog, Orders and Refunds APIs, and checkout shows a simulated approval step in place of the PayPal popup, so the whole flow can be tried. Add sandbox keys and restart: real PayPal API calls and Smart Buttons take over, and the badge changes to "PayPal sandbox".
 
 ### Demo script (~2 minutes)
 
-1. **Seller studio** → attach a product photo and type: *"5 of these candles, soy wax, 8oz, around $18, don't go under $15."* The listing appears on the right with its PayPal catalog id.
+1. **Seller studio** → attach a product photo and type: *"5 of these candles, soy wax, 8oz, around $18, don't go under $15."* The listing appears on the right.
 2. **Storefront** → ask the assistant *"What's good for a gift under $40?"*, then make an offer below the list price on any product. Watch it counter. Accept, then say *"check me out"*.
-3. Pay with the sandbox personal account in the PayPal popup. The chat confirms the payment and stock goes down.
-4. **Seller studio** → *"How are sales?"* → *"Refund the last order, the buyer changed their mind."* The order flips to REFUNDED in PayPal and on the dashboard.
+3. Tap **Pay with KoolUPI** and enter any 4-digit PIN. The chat confirms the payment and stock goes down.
+4. **Seller studio** → *"How are sales?"* → *"Refund the last order, the buyer changed their mind."* The order flips to REFUNDED on the dashboard.
 
 ## A shared market
 
@@ -112,11 +120,10 @@ On a free host the server's disk is wiped on every restart, so a hosted Koolcart
 3. **Deploy (Render, free).** Sign in at [render.com](https://render.com) with GitHub → **New → Blueprint** → pick this repo. Render reads `render.yaml` and asks for:
    - `DATABASE_URL`: the Neon connection string
    - `GEMINI_API_KEY`
-   - `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET`: your sandbox app
    - `SELLER_PASSCODE`: any phrase; it protects the house "Koolcart" account
 4. Click **Apply**. The first build takes a few minutes, and you get a URL like `https://koolcart.onrender.com`.
 
-**Check it works:** the header badge says **PayPal sandbox · live**; open **Sell**, enter a name and list something; open the site in another browser or on your phone and the listing shows **"by <your name>"**.
+**Check it works:** the header badge says **Demo payments · KoolUPI**; open **Sell**, enter a name and list something; open the site in another browser or on your phone and the listing shows **"by <your name>"**.
 
 The free Render tier sleeps after about 15 idle minutes, so the first visit after that takes 30–60 seconds. Everything is saved in Neon, so nothing is lost.
 

@@ -33,12 +33,14 @@ export const sellerOf = (l: Pick<Listing, "sellerName">) => l.sellerName ?? HOUS
 export const sellerKey = (name: string) => name.trim().replace(/\s+/g, " ").toLowerCase();
 
 export type Order = {
-  id: string; // PayPal order id
+  id: string; // KC-… for KoolUPI, or the PayPal order id
   lines: { listingId: string; title: string; unitPrice: number; quantity: number; sellerName?: string }[];
   total: number;
   status: "CREATED" | "COMPLETED" | "REFUNDED" | "PARTIALLY_REFUNDED";
   negotiated: boolean;
   captureId?: string;
+  /** How the order was paid: the gateway, and for KoolUPI the payer's UPI ID and the transaction reference. */
+  payment?: { gateway: "koolupi" | "paypal"; upiId?: string; utr?: string };
   payerEmail?: string;
   payerName?: string;
   refundedAmount?: number;

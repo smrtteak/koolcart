@@ -243,7 +243,7 @@ function Studio({
             <span className="font-hand text-xl">psst, this is a demo shop.</span>{" "}
             <span className="text-muted">
               Go ahead and list, edit or refund things. Everything resets to the starter shelf every{" "}
-              {demoResetHours === 1 ? "hour" : `${demoResetHours} hours`}, and all payments are PayPal sandbox.
+              {demoResetHours === 1 ? "hour" : `${demoResetHours} hours`}, and all payments are demo payments (no real money).
             </span>
           </div>
         )}
@@ -427,7 +427,7 @@ function Studio({
                     <button
                       disabled={busyId === o.id}
                       onClick={() =>
-                        confirm(`Refund ${usd(o.total - (o.refundedAmount ?? 0))} to the buyer via PayPal?`) &&
+                        confirm(`Refund ${usd(o.total - (o.refundedAmount ?? 0))} to the buyer?`) &&
                         act(o.id, () => postJSON(`/api/orders/${o.id}/refund`, {}, headers))
                       }
                       className="btn-line rounded-full px-3 py-1 text-xs hover:bg-tint-rose disabled:opacity-40"
@@ -464,7 +464,7 @@ function Studio({
                     Order <span className="font-mono">{r.orderId}</span>
                     {order && ` · ${order.lines.map((l) => l.title).join(", ")} · ${usd(order.total)}`}
                     {` · asked ${new Date(r.createdAt).toLocaleDateString()}`}
-                    {r.refundId && ` · PayPal refund ${r.refundId}`}
+                    {r.refundId && ` · refund ${r.refundId}`}
                   </div>
                   {r.status === "REQUESTED" && (
                     <div className="mt-4 flex gap-2">
@@ -472,12 +472,12 @@ function Studio({
                         disabled={busyId === r.id}
                         onClick={() =>
                           (r.type === "exchange" ||
-                            confirm(`Approve and refund ${order ? usd(order.total) : "the order"} through PayPal?`)) &&
+                            confirm(`Approve and refund ${order ? usd(order.total) : "the order"}?`)) &&
                           act(r.id, () => patchJSON(`/api/returns/${r.id}`, { action: "approve" }))
                         }
                         className="btn-ink rounded-full px-4 py-2 text-sm disabled:opacity-40"
                       >
-                        {busyId === r.id ? "working…" : r.type === "return" ? "Approve & refund via PayPal" : "Approve exchange"}
+                        {busyId === r.id ? "working…" : r.type === "return" ? "Approve & refund" : "Approve exchange"}
                       </button>
                       <button
                         disabled={busyId === r.id}

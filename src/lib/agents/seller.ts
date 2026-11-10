@@ -1,12 +1,12 @@
 import { z } from "zod";
 import * as paypal from "../paypal";
+import { paymentProvider } from "../payments";
 import { ownsListing, refundForSeller, sellerView } from "../commerce";
 import { HAGGLE_STYLES, HAGGLE_STYLE_INFO } from "../haggle";
 import { mutate, newId, read, type Listing } from "../store";
 import { runAgent, tool, type ChatTurn } from "./run";
 
-const system = (sellerName: string) => `You are the back-office assistant for Koolcart, a shared online marketplace that takes
-payments through PayPal. Many independent sellers list here. You are helping ${sellerName}; every tool only sees and
+const system = (sellerName: string) => `You are the back-office assistant for Koolcart, a shared online marketplace. Many independent sellers list here. You are helping ${sellerName}; every tool only sees and
 changes ${sellerName}'s own listings and orders, never other sellers'.
 The seller talks to you in plain language; you run their shelf for them with your tools.
 
@@ -17,7 +17,7 @@ What you do:
   haggles. If the seller doesn't give one, propose ~85% of the list price and say so.
 - If the seller gives no price, suggest a realistic one for the item and its condition and say why in one line.
 - Answer questions about sales and orders using the tools, never from memory.
-- Issue refunds through PayPal when asked. Confirm the order and amount in your reply.
+- Issue refunds when asked. Confirm the order and amount in your reply.
 - Each listing has a haggling style: firm (holds near the tag, never reaches the floor), fair (the default: concedes
   a bit each round, and a buyer's 3rd offer can reach the floor) or flexible (accepts any offer at or above the floor
   right away). Set it when the seller asks, e.g. "make the scarf flexible", or suggests it ("clear these out").
@@ -71,21 +71,24 @@ export async function runSellerAgent(history: ChatTurn[], sellerName: string) {
     tool({
       name: "create_listing",
       description:
-        "Publish a new product listing. Also registers it in the PayPal product catalog. The photo the seller attached in this conversation, if any, is used automatically.",
+        "Publish a new product listing. The photo the seller attached in this conversation, if any, is used automatically.",
       schema: z.object(listingFields),
       run: async (input) => {
         if (input.floorPrice > input.price) return "Error: floorPrice must not exceed price.";
         let paypalProductId: string | undefined;
         let catalogNote = "";
-        try {
-          const product = await paypal.createCatalogProduct({
-            name: input.title,
-            description: input.tagline,
-            imageUrl: latestImage,
-          });
-          paypalProductId = product.id;
-        } catch (e) {
-          catalogNote = ` (PayPal catalog sync failed: ${(e as Error).message})`;
+        // Only PayPal has a product catalog to sync to; KoolUPI takes payments without one.
+        if (paymentProvider() === "paypal") {
+          try {
+            const product = await paypal.createCatalogProduct({
+              name: input.title,
+              description: input.tagline,
+              imageUrl: latestImage,
+            });
+            paypalProductId = product.id;
+          } catch (e) {
+            catalogNote = ` (PayPal catalog sync failed: ${(e as Error).message})`;
+          }
         }
         const listing: Listing = {
           id: newId(),
@@ -137,7 +140,7 @@ export async function runSellerAgent(history: ChatTurn[], sellerName: string) {
     }),
     tool({
       name: "list_orders",
-      description: "List this seller's recent orders, newest first: their items in each order, status, buyer and PayPal ids.",
+      description: "List this seller's recent orders, newest first: their items in each order, status, buyer and payment ids.",
       schema: z.object({ limit: z.number().int().min(1).max(50).optional() }),
       run: async ({ limit }) => {
         const db = await read();
@@ -147,16 +150,16 @@ export async function runSellerAgent(history: ChatTurn[], sellerName: string) {
     }),
     tool({
       name: "refund_order",
-      description: "Refund this seller's part of a paid order through PayPal. Omit amount to refund all of it.",
+      description: "Refund this seller's part of a paid order to the buyer. Omit amount to refund all of it.",
       schema: z.object({
-        orderId: z.string().describe("PayPal order id"),
+        orderId: z.string().describe("Order id"),
         amount: z.number().positive().optional(),
         reason: z.string().max(200).optional().describe("Short note shown to the buyer"),
       }),
       run: async ({ orderId, amount, reason }) => {
         try {
           const r = await refundForSeller(orderId, sellerName, amount, reason);
-          return `Refund ${r.refundId} ${r.refundStatus}: $${r.amount.toFixed(2)} returned to the buyer via PayPal.`;
+          return `Refund ${r.refundId} ${r.refundStatus}: $${r.amount.toFixed(2)} returned to the buyer.`;
         } catch (e) {
           return `Error: ${(e as Error).message}`;
         }

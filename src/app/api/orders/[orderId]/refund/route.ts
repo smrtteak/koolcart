@@ -1,7 +1,7 @@
 import { refundForSeller } from "@/lib/commerce";
 import { errorResponse, sellerAuth } from "@/lib/http";
 
-// One-click refund from the seller dashboard: refunds this seller's share of the order through PayPal.
+// One-click refund from the seller dashboard: refunds this seller's share of the order .
 export async function POST(req: Request, ctx: RouteContext<"/api/orders/[orderId]/refund">) {
   const auth = sellerAuth(req);
   if ("denied" in auth) return auth.denied;

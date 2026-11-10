@@ -30,7 +30,7 @@ const hand = Caveat({
 
 export const metadata: Metadata = {
   title: "Koolcart",
-  description: "A small online shop where you can chat with the shopkeeper, make an offer and pay with PayPal.",
+  description: "A small online shop where you can chat with the shopkeeper, make an offer and pay in seconds.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -46,7 +46,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <NavBar />
           <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-14 pt-6 sm:px-6">{children}</main>
           <footer className="border-t border-line py-8 text-center text-sm text-muted">
-            <span className="font-hand text-xl text-ink">Koolcart</span> · made with care · payments by PayPal ·{" "}
+            <span className="font-hand text-xl text-ink">Koolcart</span> · made with care · payments by KoolUPI (demo) ·{" "}
             <Link href="/returns" className="underline decoration-dotted underline-offset-4 hover:text-ink">
               returns &amp; exchanges
             </Link>

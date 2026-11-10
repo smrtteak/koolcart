@@ -10,7 +10,7 @@ export type Turn = {
   image?: string;
   /** Tool calls the agent made for this reply. UI-only. */
   steps?: Step[];
-  /** UI-only extras rendered under an assistant turn (e.g. a PayPal button). Not sent to the server. */
+  /** UI-only extras rendered under an assistant turn (e.g. a pay button). Not sent to the server. */
   extra?: ReactNode;
 };
 
@@ -30,7 +30,7 @@ async function shrinkImage(file: File, max = 640): Promise<string> {
 
 const money = (v: unknown) => (typeof v === "number" ? `$${v.toFixed(2)}` : "");
 
-/** Plain-language note for each thing the assistant did. `paypal` marks calls that hit a PayPal API. */
+/** Plain-language note for each thing the assistant did. `paypal` marks calls that touch payments. */
 function describe(step: Step): { label: string; paypal?: boolean } {
   const i = step.input ?? {};
   switch (step.tool) {
@@ -48,13 +48,13 @@ function describe(step: Step): { label: string; paypal?: boolean } {
       return { label: `asked the owner about ${money(i.offeredUnitPrice)}${verdict}` };
     }
     case "create_checkout":
-      return { label: step.error ? "couldn't open PayPal checkout" : "opened a PayPal order", paypal: true };
+      return { label: step.error ? "couldn't open checkout" : "opened a checkout", paypal: true };
     case "check_order_status":
-      return { label: "checked with PayPal", paypal: true };
+      return { label: "checked the order", paypal: true };
     case "get_shop_overview":
       return { label: "looked over the books" };
     case "create_listing":
-      return { label: `put “${i.title}” on the shelf + PayPal catalog`, paypal: true };
+      return { label: `put “${i.title}” on the shelf`, paypal: true };
     case "update_listing":
       return { label: "touched up a listing" };
     case "delete_listing":
@@ -63,7 +63,7 @@ function describe(step: Step): { label: string; paypal?: boolean } {
       return { label: "flipped through orders" };
     case "refund_order":
       return {
-        label: step.error ? "PayPal refund didn't go through" : `refunded${i.amount ? ` ${money(i.amount)}` : ""} via PayPal`,
+        label: step.error ? "refund didn't go through" : `refunded${i.amount ? ` ${money(i.amount)}` : ""}`,
         paypal: true,
       };
     case "set_shop_name":

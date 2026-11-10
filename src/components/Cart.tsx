@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { celebrate } from "./celebrate";
-import { PayPalCheckout } from "./PayPalCheckout";
+import { Checkout } from "./Checkout";
 
 export type CartItem = { id: string; title: string; price: number; image?: string; qty: number; stock: number };
 
@@ -142,7 +142,7 @@ function CartDrawer() {
             <div className="card rounded-2xl p-5 text-center">
               <div className="font-display text-3xl">Thank you!</div>
               <p className="mt-1 text-sm text-muted">
-                Paid {usd(paidOrder.total)} with PayPal. Order <span className="font-mono">{paidOrder.id}</span>
+                Paid {usd(paidOrder.total)}. Order <span className="font-mono">{paidOrder.id}</span>
               </p>
               <Link
                 href={`/returns?order=${paidOrder.id}`}
@@ -192,7 +192,8 @@ function CartDrawer() {
               <span className="font-display text-4xl tabular-nums">{usd(subtotal)}</span>
             </div>
             <p className="text-xs text-muted">Free returns within 30 days. Want a better price? Ask the shopkeeper first.</p>
-            <PayPalCheckout
+            <Checkout
+              amount={subtotal}
               createOrder={async () => {
                 const res = await fetch("/api/checkout", {
                   method: "POST",

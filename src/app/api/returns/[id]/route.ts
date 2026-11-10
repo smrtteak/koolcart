@@ -2,7 +2,7 @@ import { refundForSeller, sellerView } from "@/lib/commerce";
 import { errorResponse, sellerAuth } from "@/lib/http";
 import { mutate, read } from "@/lib/store";
 
-// Seller: approve or decline a request on an order with their items. Approving a return refunds their share via PayPal.
+// Seller: approve or decline a request on an order with their items. Approving a return refunds their share.
 export async function PATCH(req: Request, ctx: RouteContext<"/api/returns/[id]">) {
   const auth = sellerAuth(req);
   if ("denied" in auth) return auth.denied;

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useCart } from "@/components/Cart";
 import { Chat, postJSON, useLive, wire, type ChatHandle, type Step, type Turn } from "@/components/Chat";
-import { PayPalCheckout } from "@/components/PayPalCheckout";
+import { Checkout } from "@/components/Checkout";
 import { celebrate } from "@/components/celebrate";
 
 type Product = {
@@ -290,7 +290,7 @@ function Ticker({ sales, now }: { sales: Sale[]; now: number }) {
     ? sales.map(
         (s) => `Someone picked up the ${s.title} for ${usd(s.total)}${s.negotiated ? " after a little haggling" : ""} · ${ago(s.at, now)}`,
       )
-    : ["Free returns for 30 days", "Pay safely with PayPal", "Make an offer on anything", "New things added every week"];
+    : ["Free returns for 30 days", "Pay in seconds with KoolUPI", "Make an offer on anything", "New things added every week"];
   const loop = [...items, ...items];
   return (
     <div className="overflow-hidden border-y border-dashed border-line py-2.5 [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)]">
@@ -553,7 +553,8 @@ function Receipt({ c, onPaid }: { c: Checkout; onPaid: () => void }) {
             </Link>
           </div>
         ) : (
-          <PayPalCheckout
+          <Checkout
+            amount={c.total}
             orderId={c.orderId}
             onPaid={(o) => {
               setPaid(o);
@@ -639,7 +640,8 @@ function ProductModal({
                   or buy it right now
                   <span className="h-px flex-1 bg-line" />
                 </div>
-                <PayPalCheckout
+                <Checkout
+                  amount={p.price}
                   createOrder={async () =>
                     (await postJSON<{ orderId: string }>("/api/checkout", { listingId: p.id })).orderId
                   }

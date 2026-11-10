@@ -84,7 +84,7 @@ function Returns() {
         <h1 className="font-display text-5xl leading-none sm:text-6xl">Returns &amp; exchanges</h1>
         <p className="mt-3 max-w-lg text-muted">
           Something not quite right? Tell us what happened and we&apos;ll sort it out. Your order number is on the
-          PayPal receipt email and on the receipt in the shop chat.
+          payment receipt and on the receipt in the shop chat.
         </p>
 
         {done ? (
@@ -94,7 +94,7 @@ function Returns() {
               Your {done.type} request <span className="font-mono text-ink">{done.id}</span> for order{" "}
               <span className="font-mono text-ink">{done.orderId}</span> is with the shop.{" "}
               {done.type === "return"
-                ? "Once it's approved, the refund goes straight back to your PayPal account (usually 3–5 days)."
+                ? "Once it's approved, the refund goes straight back to the account you paid from."
                 : "Once it's approved, we'll be in touch about your replacement."}
             </p>
             <div className="mt-6 flex gap-3">
@@ -150,7 +150,7 @@ function Returns() {
               <div className="grid gap-3 sm:grid-cols-2">
                 {(
                   [
-                    ["return", "Return it", "Send it back and get your money back to PayPal."],
+                    ["return", "Return it", "Send it back and get your money back."],
                     ["exchange", "Exchange it", "Swap for a different size, colour or item."],
                   ] as const
                 ).map(([value, title, text]) => (
@@ -219,7 +219,7 @@ function Returns() {
           <div className="font-hand text-2xl">the short version</div>
           <ul className="mt-2 space-y-2 text-sm text-muted">
             <li>✳ You have 30 days from the day you paid.</li>
-            <li>✳ Refunds go back to your PayPal account, usually within 3–5 days of approval.</li>
+            <li>✳ Refunds go back to the account you paid from as soon as they&apos;re approved.</li>
             <li>✳ Exchanges ship once the shop approves the swap.</li>
             <li>✳ Damaged or wrong item? Return shipping is on us.</li>
           </ul>

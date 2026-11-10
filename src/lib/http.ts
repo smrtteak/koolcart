@@ -1,9 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { timingSafeEqual } from "crypto";
+import { KoolUpiError } from "@/lib/koolupi";
 import { PayPalError } from "@/lib/paypal";
 import { HOUSE_SELLER, sellerKey } from "@/lib/store";
 
 export function errorResponse(e: unknown) {
+  // Payment input problems are the shopper's to fix, not server errors; never log what they typed.
+  if (e instanceof KoolUpiError) return Response.json({ error: e.message, code: e.code }, { status: 402 });
   console.error(e);
   if (e instanceof Anthropic.AuthenticationError) {
     return Response.json({ error: "Claude API key is missing or invalid (ANTHROPIC_API_KEY)." }, { status: 500 });

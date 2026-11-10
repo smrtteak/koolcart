@@ -22,10 +22,18 @@ export function TopBar() {
             <rect x="4" y="11" width="16" height="10" rx="2" />
             <path d="M8 11V7a4 4 0 0 1 8 0v4" />
           </svg>
-          Checkout with
-          <span className="font-bold italic text-foreground">
-            Pay<span className="text-[#3a9bdc]">Pal</span>
-          </span>
+          {config?.paymentProvider === "paypal" ? (
+            <>
+              Checkout with
+              <span className="font-bold italic text-foreground">
+                Pay<span className="text-[#3a9bdc]">Pal</span>
+              </span>
+            </>
+          ) : (
+            <>
+              Pay in seconds with <span className="font-semibold text-foreground">KoolUPI</span>
+            </>
+          )}
         </span>
         <span className="hidden opacity-50 sm:inline">✳</span>
         <span className="hidden sm:inline">Free returns for 30 days</span>

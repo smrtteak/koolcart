@@ -4,6 +4,7 @@ import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { useEffect, useState } from "react";
 
 type Config = {
+  paymentProvider: "koolupi" | "paypal";
   paypalClientId: string | null;
   paypalMode: "sandbox" | "demo";
   sellerLocked: boolean;
@@ -28,6 +29,7 @@ export function PayPalCheckout({
   createOrder,
   onPaid,
 }: {
+  amount?: number;
   orderId?: string;
   createOrder?: () => Promise<string>;
   onPaid?: (order: { id: string; total: number; payerName?: string }) => void;
@@ -141,6 +143,18 @@ export function PayPalCheckout({
 export function PayPalModeBadge() {
   const config = usePayPalConfig();
   if (!config) return null;
+  if (config.paymentProvider === "koolupi") {
+    return (
+      <span
+        title="Payments are simulated with KoolUPI: any 4-digit PIN works and nothing is charged"
+        className="flex items-center gap-2 whitespace-nowrap rounded-full bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand"
+      >
+        <span className="h-2 w-2 rounded-full bg-brand" />
+        <span className="hidden sm:inline">Demo payments · KoolUPI</span>
+        <span className="sm:hidden">Demo</span>
+      </span>
+    );
+  }
   const live = config.paypalMode === "sandbox";
   return (
     <span

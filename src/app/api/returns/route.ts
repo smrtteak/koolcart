@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
     const request = await mutate((db) => {
       const order = db.orders.find((o) => o.id === orderId);
-      if (!order) throw new Error("We couldn't find that order number. It's on your PayPal receipt.");
+      if (!order) throw new Error("We couldn't find that order number. It's on your receipt.");
       if (order.status !== "COMPLETED") throw new Error("That order isn't eligible — it was never paid or is already refunded.");
       const paidAt = new Date(order.capturedAt ?? order.createdAt).getTime();
       if (Date.now() - paidAt > RETURN_WINDOW_DAYS * 864e5) throw new Error(`Returns close ${RETURN_WINDOW_DAYS} days after purchase.`);
