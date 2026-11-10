@@ -179,18 +179,33 @@ function TestCardHint({ card }: { card: { number: string; expiry: string } }) {
         <span className="font-hand text-base text-brand">no PayPal account?</span>
         <span className="text-muted">It&apos;s a demo shop with fake money.</span>
       </div>
-      <p className="mb-2 text-muted">
-        Click <b className="text-foreground">Debit or Credit Card</b> and use this test card:
-      </p>
-      <div className="flex flex-wrap gap-x-1 gap-y-0.5">
-        <CopyField label="Card" value={spaced} raw={card.number} copied={copied} onCopy={copy} />
-        <CopyField label="Expiry" value={card.expiry} raw={card.expiry} copied={copied} onCopy={copy} />
-        <CopyField label="CVV" value="123" raw="123" copied={copied} onCopy={copy} />
-      </div>
-      <p className="mt-2 text-muted">
-        Any name and address work. Switch off &ldquo;create a PayPal account&rdquo;, then choose{" "}
-        <b className="text-foreground">Pay now as guest</b>.
-      </p>
+      <ol className="list-decimal space-y-1.5 pl-4 text-muted marker:text-brand">
+        <li>
+          Click <b className="text-foreground">Debit or Credit Card</b>, then set{" "}
+          <b className="text-foreground">Country/region → United States</b>. Other countries ask for an SMS code.
+        </li>
+        <li>
+          Use this test card:
+          <div className="mt-0.5 flex flex-wrap gap-x-1 gap-y-0.5">
+            <CopyField label="Card" value={spaced} raw={card.number} copied={copied} onCopy={copy} />
+            <CopyField label="Expiry" value={card.expiry} raw={card.expiry} copied={copied} onCopy={copy} />
+            <CopyField label="CVV" value="123" raw="123" copied={copied} onCopy={copy} />
+          </div>
+        </li>
+        <li>
+          Any name and email. For the address and phone, a US one like:
+          <div className="mt-0.5 flex flex-wrap gap-x-1 gap-y-0.5">
+            <CopyField label="Street" value="123 Sample St" raw="123 Sample Street" copied={copied} onCopy={copy} />
+            <CopyField label="City" value="San Jose, CA" raw="San Jose" copied={copied} onCopy={copy} />
+            <CopyField label="ZIP" value="95131" raw="95131" copied={copied} onCopy={copy} />
+            <CopyField label="Phone" value="408 555 0123" raw="4085550123" copied={copied} onCopy={copy} />
+          </div>
+        </li>
+        <li>
+          Switch off &ldquo;create a PayPal account&rdquo;, then click{" "}
+          <b className="text-foreground">Pay now as guest</b>.
+        </li>
+      </ol>
     </div>
   );
 }
