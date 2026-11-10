@@ -7,6 +7,7 @@ import { PayPalModeBadge, usePayPalConfig } from "./PayPalCheckout";
 
 const LINKS = [
   { href: "/", label: "Shop" },
+  { href: "/orders", label: "Orders" },
   { href: "/returns", label: "Returns" },
   { href: "/seller", label: "Sell" },
 ];

@@ -120,7 +120,7 @@ function Returns() {
                 <input
                   value={orderId}
                   onChange={(e) => setOrderId(e.target.value)}
-                  placeholder="e.g. 4V1222599J869025M"
+                  placeholder="e.g. KC-4A97BFDA2A"
                   className="min-w-0 flex-1 rounded-xl border border-line-strong bg-background/50 px-4 py-2.5 font-mono text-sm outline-none focus:bg-paper"
                   required
                 />
